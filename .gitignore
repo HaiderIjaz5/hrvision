@@ -1,0 +1,11 @@
+# Environments
+venv/
+env/
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Uploaded Resumes and Files (We don't want to push test PDFs to GitHub)
+uploads/

@@ -1,0 +1,25 @@
+{% extends "public_base.html" %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
+    <h1 style="font-size: 2.5rem; color: var(--text-main); margin-bottom: 1.5rem; text-align: center;">About HRVision</h1>
+    
+    <div class="card" style="padding: 3rem;">
+        <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Our Mission</h3>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;">
+            HRVision was developed as a Final Year Project with a singular goal: to eliminate the friction and bias in modern recruitment. We believe that HR teams spend too much time reading irrelevant resumes, and highly qualified candidates often slip through the cracks of outdated keyword-filtering systems.
+        </p>
+
+        <h3 style="color: var(--primary-color); margin-bottom: 1rem;">The Technology</h3>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;">
+            Built on a robust Python/Flask and MongoDB architecture, HRVision leverages Natural Language Processing (NLP) to compare job requirements directly against candidate profiles. By analyzing the semantic meaning of resumes, we provide HR administrators with an accurate "Similarity Score," allowing them to focus on interviewing rather than filtering.
+        </p>
+
+        <hr class="divider">
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <p style="font-weight: 600; color: var(--text-main);">Developed with precision and care for the 2026 Capstone Defense.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

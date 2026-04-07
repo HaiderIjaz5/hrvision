@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Admin Secure Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #1e293b;">
+
+    <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem; background-color: #ffffff; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="background-color: #eff6ff; display: inline-block; padding: 1rem; border-radius: 50%; margin-bottom: 1rem;">
+                <h2 style="color: var(--primary-color); margin: 0; font-size: 1.5rem;">🔒 HRVision</h2>
+            </div>
+            <h3 style="color: var(--text-main);">Admin Secure Login</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Authorized Personnel Only</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="background-color: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-size: 0.9rem; border: 1px solid #fecaca;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/admin/login" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="form-group">
+                <label>Administrator Email</label>
+                <input type="email" name="email" required placeholder="admin@hrvision.com">
+            </div>
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label>Password</label>
+                    <a href="/forgot_password" style="color: var(--primary-color); font-size: 0.8rem; text-decoration: none;">Forgot Password?</a>
+                </div>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" name="password" id="adminLoginPassword" required placeholder="••••••••" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%; padding-right: 2.5rem;">
+                    <button type="button" onclick="togglePassword('adminLoginPassword', 'adminLoginEye')" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; padding: 0;">
+                        <svg id="adminLoginEye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%; padding: 0.8rem;">Access Dashboard</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="/jobs" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Return to Public Job Board</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+    </script>
+</body>
+</html>

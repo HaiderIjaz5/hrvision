@@ -1,0 +1,38 @@
+{% extends "public_base.html" %}
+
+{% block content %}
+<div style="background-color: white; padding: 5rem 2rem; text-align: center; border-bottom: 1px solid var(--border-color);">
+    <h1 style="font-size: 3.5rem; color: var(--text-main); margin-bottom: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+        Hire Smarter, Not Harder.
+    </h1>
+    <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2.5rem auto; line-height: 1.6;">
+        HRVision uses cutting-edge Natural Language Processing to automatically screen, rank, and shortlist the perfect candidates for your team.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="/jobs" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Find a Job</a>
+        <a href="/admin/login" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2rem;">HR Login</a>
+    </div>
+</div>
+
+<div style="max-width: 1000px; margin: 4rem auto; padding: 0 2rem;">
+    <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2rem;">Why HRVision?</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <h3 style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem;">🤖</h3>
+            <h4>AI-Powered Screening</h4>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem;">Our advanced NLP model calculates a semantic similarity score to instantly surface the best resumes.</p>
+        </div>
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <h3 style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem;">🛡️</h3>
+            <h4>Secure Multi-Tenancy</h4>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem;">Role-based access control ensures HR managers only see the candidates meant for their specific departments.</p>
+        </div>
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <h3 style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem;">⚡</h3>
+            <h4>Frictionless Application</h4>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem;">A clean, interactive 5-step wizard makes it incredibly easy for top talent to submit structured data.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

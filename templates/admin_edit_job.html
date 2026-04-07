@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Job - HRVision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-safe-wrapper">
+
+        <aside class="sidebar">
+            <h2>HRVision AI</h2>
+            <ul class="nav-links">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/post_job">Post a Job</a></li>
+                <li><a href="/admin/jobs">Manage Jobs</a></li>
+                
+                {% if session.get('email') == 'admin@hrvision.com' %}
+                    <li><a href="/admin/create_hr">+ Add HR Admin</a></li>
+                {% endif %}
+                
+                <li><a href="/jobs" target="_blank">View Live Job Board ➔</a></li>
+            </ul>
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Logged in as: <br><strong>{{ session['user_name'] }}</strong></p>
+                {% if session.get('email') == 'admin@hrvision.com' %}
+                    <span class="badge" style="background-color: #fef08a; color: #854d0e; font-size: 0.7rem; margin-bottom: 1rem;">Super Admin</span>
+                {% else %}
+                    <span class="badge" style="background-color: #e2e8f0; color: #475569; font-size: 0.7rem; margin-bottom: 1rem;">HR Manager</span>
+                {% endif %}
+                <a href="/logout" class="btn btn-secondary btn-sm" style="width: 100%;">Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Edit Job Posting</h1>
+                <p>Modify the details, deadline, or AI criteria for this role.</p>
+            </header>
+
+            <div class="card" style="max-width: 800px;">
+                <form action="/admin/edit_job/{{ job._id }}" method="POST" class="profile-form" enctype="multipart/form-data">
+                    
+                    <h3 class="section-title">Core Job Details</h3>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Job Title</label>
+                            <input type="text" name="job_title" value="{{ job.job_title }}" required>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Department</label>
+                            <input type="text" name="department" value="{{ job.department }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Work Modality</label>
+                            <select name="modality" required>
+                                <option value="On-site" {% if job.modality == 'On-site' %}selected{% endif %}>On-site</option>
+                                <option value="Hybrid" {% if job.modality == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                                <option value="Remote" {% if job.modality == 'Remote' %}selected{% endif %}>Remote</option>
+                            </select>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Employment Type</label>
+                            <select name="employment_type" required>
+                                <option value="Full-Time" {% if job.employment_type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
+                                <option value="Part-Time" {% if job.employment_type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
+                                <option value="Contract" {% if job.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                                <option value="Internship" {% if job.employment_type == 'Internship' %}selected{% endif %}>Internship</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Salary Range (MIN)</label>
+                            <input type="number" name="salary_min" value="{{ job.salary_range.split(' - ')[0] if ' - ' in job.salary_range else '' }}">
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Salary Range (MAX)</label>
+                            <input type="number" name="salary_max" value="{{ job.salary_range.split(' - ')[1] if ' - ' in job.salary_range else '' }}">
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <h3 class="section-title">Screening & AI Criteria</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Minimum Education Level</label>
+                            <select name="min_education" required>
+                                <option value="High School" {% if job.min_education == 'High School' %}selected{% endif %}>High School</option>
+                                <option value="Intermediate" {% if job.min_education == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                                <option value="Bachelors" {% if job.min_education == 'Bachelors' %}selected{% endif %}>Bachelors</option>
+                                <option value="Masters" {% if job.min_education == 'Masters' %}selected{% endif %}>Masters</option>
+                                <option value="PhD" {% if job.min_education == 'PhD' %}selected{% endif %}>Ph.D.</option>
+                            </select>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Application Deadline (Optional)</label>
+                            <input type="date" name="deadline" value="{{ job.deadline }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Minimum Experience Required</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="number" name="min_experience_years" min="0" value="{{ job.min_experience_years | int }}" required placeholder="Years" style="width: 50%;">
+                                <input type="number" name="min_experience_months" min="0" max="11" value="{{ ((job.min_experience_years - (job.min_experience_years | int)) * 12) | round | int }}" placeholder="Months" style="width: 50%;">
+                            </div>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Research Paper Required?</label>
+                            <select name="requires_research_paper" required>
+                                <option value="No" {% if job.requires_research_paper == 'No' %}selected{% endif %}>Not Required</option>
+                                <option value="Preferred" {% if job.requires_research_paper == 'Preferred' %}selected{% endif %}>Preferred</option>
+                                <option value="Yes" {% if job.requires_research_paper == 'Yes' %}selected{% endif %}>Mandatory</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Mandatory Skills (Comma separated)</label>
+                        <input type="text" name="mandatory_skills" value="{{ job.mandatory_skills | join(', ') }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Optional/Bonus Skills (Comma separated)</label>
+                        <input type="text" name="optional_skills" value="{{ job.optional_skills | join(', ') }}">
+                    </div>
+
+                    <hr class="divider">
+
+                    <h3 class="section-title">Job Description</h3>
+                    
+                    <div class="form-group" style="background-color: #f0fdf4; padding: 1.5rem; border: 1px dashed #4ade80; border-radius: 6px; margin-bottom: 1.5rem;">
+                        <label style="color: #166534; font-weight: 600;">Upload New JD (PDF/DOCX) - Optional</label>
+                        <input type="file" name="jd_file" accept=".pdf, .doc, .docx" style="margin-top: 0.5rem;">
+                        <input type="hidden" name="existing_jd_filename" value="{{ job.jd_filename }}">
+                        {% if job.jd_filename %}
+                            <small style="color: #166534; display: block; margin-top: 0.5rem;">Currently attached: {{ job.jd_filename }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Manual Job Description Text</label>
+                        <textarea name="job_description" rows="6">{{ job.job_description }}</textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <a href="/admin/jobs" class="btn btn-secondary" style="width: 50%; text-align: center; padding: 1rem;">Cancel</a>
+                        <button type="submit" class="btn btn-primary" style="width: 50%; padding: 1rem; background-color: #10b981; border-color: #10b981;">Save Changes ✔</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

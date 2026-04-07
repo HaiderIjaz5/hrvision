@@ -1,0 +1,47 @@
+{% extends "public_base.html" %}
+
+{% block content %}
+<div class="container-sm">
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                {% if "match" in message.lower() or "incorrect" in message.lower() %}
+                    <div class="flash-error">{{ message }}</div>
+                {% else %}
+                    <div class="flash-success">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <header class="header text-center">
+        <h1>Account Settings</h1>
+        <p>Update your login credentials here.</p>
+    </header>
+
+    <div class="card">
+        <h3 class="section-title">Change Password</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Your account email is: <strong>{{ user.email }}</strong></p>
+        
+        <form action="/candidate/settings" method="POST" class="profile-form">
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" name="old_password" required>
+            </div>
+            
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="new_password" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" name="confirm_password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Update Password</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

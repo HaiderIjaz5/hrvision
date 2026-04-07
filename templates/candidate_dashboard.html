@@ -1,0 +1,91 @@
+{% extends "public_base.html" %}
+
+{% block content %}
+<div class="container">
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                {% if "blocked" in message.lower() or "do not match" in message.lower() %}
+                    <div class="flash-error">{{ message }}</div>
+                {% else %}
+                    <div class="flash-success">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <header class="header">
+        <h1>My Applications</h1>
+        <p>Track the status of your submitted profiles and review your application documents.</p>
+    </header>
+
+    <div class="card">
+        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Job Title</th>
+                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Applied On</th>
+                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Job Deadline</th>
+                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Submitted Resume</th>
+                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Current Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    
+                    <td style="padding: 1rem; font-weight: 600; color: var(--text-main);">
+                        {{ app.applied_job_title }}
+                    </td>
+                    
+                    <td style="padding: 1rem; color: var(--text-muted);">
+                        {{ app.applied_at[:10] }}
+                    </td>
+                    
+                    <td style="padding: 1rem; font-weight: 600; color: var(--danger);">
+                        {% if app.job_deadline and app.job_deadline != 'N/A' and app.job_deadline != 'Unknown' %}
+                            {{ app.job_deadline }}
+                        {% else %}
+                            <span style="color: var(--text-muted); font-weight: normal;">-</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td style="padding: 1rem;">
+                        {% if app.resume_filename %}
+                            <a href="{{ url_for('uploaded_file', filename=app.resume_filename) }}" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                                View Resume
+                            </a>
+                        {% else %}
+                            <span style="color: var(--text-muted);">No File</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td style="padding: 1rem; font-weight: 600;">
+                        {% if app.status == 'Applied' %}
+                            <span style="color: var(--text-muted);">Applied</span>
+                        {% elif app.status == 'Shortlisted' %}
+                            <span style="color: var(--success);">Shortlisted 🎉</span>
+                        {% elif app.status == 'Interviewing' %}
+                            <span style="color: var(--warning);">Interviewing</span>
+                        {% elif app.status == 'Rejected' %}
+                            <span style="color: var(--danger);">Not Selected</span>
+                        {% else %}
+                            <span style="color: var(--text-main);">{{ app.status }}</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        You haven't applied to any jobs yet. <br>
+                        <a href="/jobs" class="btn btn-primary" style="margin-top: 1rem;">Browse Open Jobs</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

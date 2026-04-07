@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    
+    <title>HRVision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="public-layout">
+
+    <nav class="public-header">
+        <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem;">
+            
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HRVision Logo" style="height: 32px; width: auto;">
+            
+            <a href="/" class="header-logo">HRVision</a>
+            
+            <ul class="header-nav-links" style="margin-left: 1rem;">
+                <li><a href="/">Home</a></li>
+                <li><a href="/jobs">Browse Jobs</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="header-right">
+            
+            {% if session.get('role') == 'admin' %}
+                <a href="/admin/dashboard" class="btn btn-primary btn-sm">Admin Dashboard</a>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            
+            {% elif session.get('role') == 'candidate' %}
+                <div class="dropdown">
+                    <button class="user-profile-btn">
+                        {{ session.get('user_name', 'My Account') }} ▼
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="/candidate/dashboard">My Applications</a>
+                        <a href="/candidate/my_profile">Master Profile</a>
+                        <a href="/candidate/settings">Account Settings</a>
+                        <div style="border-top: 1px solid var(--border-color); margin: 0.25rem 0;"></div>
+                        <a href="/logout" style="color: var(--danger);">Logout</a>
+                    </div>
+                </div>
+            
+            {% else %}
+                
+                <a href="{{ url_for('login', next=request.path) }}" class="user-profile-btn" style="background-color: var(--primary-color); color: white; border-color: var(--primary-color);">
+                    Login / Sign Up
+                </a>
+            {% endif %}
+
+        </div>
+    </nav>
+
+    <main class="public-main">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="public-footer">
+        <div class="footer-grid">
+            <div>
+                <h3>HRVision AI</h3>
+                <p>The future of intelligent recruitment. We bridge the gap between top talent and leading enterprises.</p>
+            </div>
+            <div>
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/jobs">Browse Jobs</a></li>
+                    <li><a href="/login">Candidate Portal</a></li>
+                    <li><a href="/admin/login">HR Login</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/about">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <p class="footer-copyright">&copy; 2026 HRVision AI. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

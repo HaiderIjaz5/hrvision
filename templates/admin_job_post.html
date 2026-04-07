@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRVision Admin - Post a Job</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+
+    <div class="admin-safe-wrapper">
+        <aside class="sidebar">
+            <h2>HRVision AI</h2>
+            <ul class="nav-links">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/post_job" class="active">Post a Job</a></li>
+                <li><a href="/admin/jobs">Manage Jobs</a></li>
+                
+                {% if session.get('email') == 'admin@hrvision.com' %}
+                    <li><a href="/admin/create_hr">+ Add HR Admin</a></li>
+                {% endif %}
+                
+                <li><a href="/jobs" target="_blank">View Live Job Board ➔</a></li>
+            </ul>
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Logged in as: <br><strong>{{ session['user_name'] }}</strong></p>
+                {% if session.get('email') == 'admin@hrvision.com' %}
+                    <span class="badge" style="background-color: #fef08a; color: #854d0e; font-size: 0.7rem; margin-bottom: 1rem;">Super Admin</span>
+                {% else %}
+                    <span class="badge" style="background-color: #e2e8f0; color: #475569; font-size: 0.7rem; margin-bottom: 1rem;">HR Manager</span>
+                {% endif %}
+                <a href="/logout" class="btn btn-secondary btn-sm" style="width: 100%;">Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Create New Job Posting</h1>
+                <p>Define the exact parameters for the AI to match candidates against.</p>
+            </header>
+
+            <div class="card" style="max-width: 800px;">
+                <form action="/admin/submit_job" method="POST" class="profile-form" enctype="multipart/form-data">
+                    
+                    <h3 class="section-title">Core Job Details</h3>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Job Title</label>
+                            <input type="text" name="job_title" required placeholder="e.g., Senior Python Developer">
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Department</label>
+                            <input type="text" name="department" required placeholder="e.g., Engineering">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Work Modality</label>
+                            <select name="modality" required>
+                                <option value="On-site">On-site</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Remote">Remote</option>
+                            </select>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Employment Type</label>
+                            <select name="employment_type" required>
+                                <option value="Full-Time">Full-Time</option>
+                                <option value="Part-Time">Part-Time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Salary Range: Minimum (PKR/USD)</label>
+                            <input type="number" name="salary_min" placeholder="e.g., 50000">
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Salary Range: Maximum (PKR/USD)</label>
+                            <input type="number" name="salary_max" placeholder="e.g., 150000">
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <h3 class="section-title">Screening & AI Criteria</h3>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Minimum Education Level</label>
+                            <select name="min_education" required>
+                                <option value="High School">High School (Matric / O-Levels)</option>
+                                <option value="Intermediate">Intermediate (FSc / A-Levels)</option>
+                                <option value="Bachelors">Bachelors Degree</option>
+                                <option value="Masters">Masters Degree</option>
+                                <option value="PhD">Ph.D.</option>
+                            </select>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Application Deadline (Optional)</label>
+                            <input type="date" name="deadline">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Minimum Experience Required</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="number" name="min_experience_years" min="0" required placeholder="Years" style="width: 50%;">
+                                <input type="number" name="min_experience_months" min="0" max="11" placeholder="Months" style="width: 50%;">
+                            </div>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Research Paper Published?</label>
+                            <select name="requires_research_paper" required>
+                                <option value="No">Not Required</option>
+                                <option value="Preferred">Preferred (Bonus AI Score)</option>
+                                <option value="Yes">Mandatory</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Mandatory Skills (Comma separated)</label>
+                        <input type="text" name="mandatory_skills" required placeholder="Python, Django, MongoDB">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Optional/Bonus Skills (Comma separated)</label>
+                        <input type="text" name="optional_skills" placeholder="Docker, AWS, React">
+                    </div>
+
+                    <hr class="divider">
+
+                    <h3 class="section-title">Job Description (Upload or Type)</h3>
+                    
+                    <div class="form-group" style="background-color: #f0fdf4; padding: 1.5rem; border: 1px dashed #4ade80; border-radius: 6px; margin-bottom: 1.5rem;">
+                        <label style="color: #166534; font-weight: 600;">Upload Formal Job Description (PDF/DOCX)</label>
+                        <input type="file" name="jd_file" accept=".pdf, .doc, .docx" style="margin-top: 0.5rem;">
+                        <small style="color: #166534; display: block; margin-top: 0.5rem;">The AI will automatically extract the text from this file to match against candidate resumes!</small>
+                    </div>
+
+                    <div style="text-align: center; margin: 1rem 0; color: var(--text-muted); font-weight: bold;">-- OR --</div>
+
+                    <div class="form-group">
+                        <label>Type Job Description Manually</label>
+                        <textarea name="job_description" rows="6" placeholder="Enter the detailed roles and responsibilities..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 2rem; width: 100%; padding: 1rem; font-size: 1.1rem;">
+                        Publish Job & Activate AI Matcher
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

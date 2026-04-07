@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Password - HRVision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f8fafc;">
+
+    <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2 style="color: var(--primary-color);">HRVision AI</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Create your new password</p>
+        </div>
+
+        <form method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="new_password" required placeholder="••••••••" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Confirm New Password</button>
+        </form>
+    </div>
+
+</body>
+</html>

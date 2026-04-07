@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRVision - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .metric-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-number {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Search Bar Styling */
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background-color: #f8fafc;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <h2>HRVision AI</h2>
+            <ul class="nav-links">
+                <li><a href="/admin/dashboard" class="active" style="background-color: #eff6ff; color: var(--primary-color);">Dashboard Overview</a></li>
+                <li><a href="/admin/post_job">Post a New Job</a></li>
+                <li><a href="/admin/jobs">Manage Postings</a></li>
+                
+                {% if session.get('email') == 'admin@hrvision.com' %}
+                    <li><a href="/admin/create_hr">+ Add HR Manager</a></li>
+                {% endif %}
+                
+                <li><a href="/jobs" target="_blank">Live Job Board ➔</a></li>
+            </ul>
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Logged in as: <br><strong style="color: var(--text-main);">{{ session['user_name'] }}</strong></p>
+                
+                {% if session.get('email') == 'admin@hrvision.com' %}
+                    <span class="badge" style="background-color: #fef08a; color: #854d0e; font-size: 0.7rem; margin-bottom: 1rem;">Super Admin</span>
+                {% else %}
+                    <span class="badge" style="background-color: #e2e8f0; color: #475569; font-size: 0.7rem; margin-bottom: 1rem;">HR Manager</span>
+                {% endif %}
+                
+                <a href="/logout" class="btn btn-secondary btn-sm" style="width: 100%;">Secure Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <header class="header">
+                <h1>Admin Control Center</h1>
+                <p>Monitor your job postings and manage your talent pipeline.</p>
+            </header>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('tab-analytics', this)">📊 Analytics Overview</button>
+                <button class="tab-btn" onclick="switchTab('tab-candidates', this)">👥 Candidate Management</button>
+            </div>
+
+            <div id="tab-analytics" class="tab-pane active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Total Applications</h3>
+                        <p class="metric-number">{{ stats.total }}</p>
+                    </div>
+                    <div class="metric-card" style="border-left-color: var(--success);">
+                        <h3>Shortlisted</h3>
+                        <p class="metric-number" style="color: var(--success);">{{ stats.shortlisted }}</p>
+                    </div>
+                    <div class="metric-card" style="border-left-color: var(--warning);">
+                        <h3>Interviewing</h3>
+                        <p class="metric-number" style="color: var(--warning);">{{ stats.interviewing }}</p>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 1rem; text-align: center;">Candidate Pipeline</h3>
+                        <div style="position: relative; height: 250px; width: 100%;">
+                            <canvas id="statusPieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 1rem; text-align: center;">Applications per Job</h3>
+                        <div style="position: relative; height: 250px; width: 100%;">
+                            <canvas id="jobsBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-candidates" class="tab-pane">
+                <div class="card">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <h3 style="margin: 0; color: var(--text-main); min-width: 200px;">Applicant Database</h3>
+                        
+                        <div style="flex: 1; max-width: 400px;">
+                            <input type="text" id="candidateSearch" class="search-input" placeholder="🔍 Search by name, skills, or job title...">
+                        </div>
+
+                        <a href="/admin/export_csv" class="btn btn-primary btn-sm" style="background-color: #10b981; border-color: #10b981; padding: 0.6rem 1rem;">
+                            📥 Export to Excel
+                        </a>
+                    </div>
+                    
+                    <table class="data-table" id="candidateTable">
+                        <thead>
+                            <tr>
+                                <th>Candidate Info</th>
+                                <th>Education Detail</th>
+                                <th>Experience Summary</th>
+                                <th>Documents</th>
+                                <th>AI Match Score</th>
+                                <th>Take Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for candidate in candidates %}
+                            <tr class="candidate-row">
+                                <td style="min-width: 150px;">
+                                    <strong style="color: var(--primary-color);">{{ candidate.personal_info.first_name }} {{ candidate.personal_info.last_name }}</strong><br>
+                                    {% if candidate.applied_job_title %}
+                                        <span class="badge badge-neutral" style="margin: 4px 0;">Target: {{ candidate.applied_job_title }}</span><br>
+                                    {% endif %}
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">✉️ {{ candidate.contact_info.email }}</span><br>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">📞 {{ candidate.contact_info.phone }}</span>
+                                    
+                                    <span style="display: none;" class="hidden-skills">{{ candidate.skills | join(' ') }}</span>
+                                </td>
+                                
+                                <td style="min-width: 160px;">
+                                    <ul style="list-style: none; padding: 0; font-size: 0.85rem;">
+                                    {% for edu in candidate.education %}
+                                        <li><strong>{{ edu.degree_name }}</strong> ({{ edu.institute_name }})</li>
+                                    {% endfor %}
+                                    </ul>
+                                </td>
+                                
+                                <td style="min-width: 160px;">
+                                    <strong style="font-size: 0.85rem;">Total: {{ candidate.total_experience_years }} Years</strong>
+                                    <ul style="list-style: none; padding: 0; font-size: 0.85rem; margin-top: 4px;">
+                                    {% for exp in candidate.experience %}
+                                        <li>{{ exp.job_designation }} at {{ exp.company_name }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                </td>
+                                
+                                <td style="max-width: 200px;">
+                                    <div class="doc-badge-container">
+                                        {% if candidate.resume_filename %}
+                                        <a href="{{ url_for('uploaded_file', filename=candidate.resume_filename) }}" target="_blank" class="doc-badge doc-resume">📄 Resume</a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    {% if candidate.ai_score != None %}
+                                        <span class="badge" style="font-size: 0.9rem; background-color: #dbeafe; color: #1e40af;">{{ candidate.ai_score }}% Match</span>
+                                    {% else %}
+                                        <span class="badge badge-pending">Pending Scan</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td style="min-width: 130px;">
+                                    <span class="badge badge-status" style="margin-bottom: 0.5rem; display: block; text-align: center;">{{ candidate.status }}</span>
+                                    
+                                    <form action="{{ url_for('update_status', candidate_id=candidate._id) }}" method="POST" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        <select name="status" style="padding: 0.35rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                                            <option value="Applied" {% if candidate.status == 'Applied' %}selected{% endif %}>Applied</option>
+                                            <option value="Shortlisted" {% if candidate.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                            <option value="Interviewing" {% if candidate.status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+                                            <option value="Rejected" {% if candidate.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">Update Status</button>
+                                    </form>
+
+                                    <form action="{{ url_for('delete_candidate', candidate_id=candidate._id) }}" method="POST" onsubmit="return confirm('Permanently delete this candidate?');">
+                                        <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">🗑️ Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr id="noCandidatesRow">
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                    No candidates found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                            <tr id="noSearchResultsRow" style="display: none;">
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--danger); font-weight: 600;">
+                                    No candidates match your search criteria.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div> 
+
+    <script>
+        // --- 1. LIVE SEARCH FILTER LOGIC ---
+        document.getElementById('candidateSearch').addEventListener('input', function(e) {
+            const searchQuery = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll('.candidate-row');
+            let visibleCount = 0;
+
+            tableRows.forEach(row => {
+                // Get all the text inside this specific row
+                const rowText = row.innerText.toLowerCase();
+                
+                // If the text includes the search query, show it. Otherwise, hide it.
+                if (rowText.includes(searchQuery)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Handle the "No Results" message
+            const noResultsRow = document.getElementById('noSearchResultsRow');
+            if (visibleCount === 0 && tableRows.length > 0) {
+                noResultsRow.style.display = '';
+            } else {
+                noResultsRow.style.display = 'none';
+            }
+        });
+
+        // --- 2. TAB SWITCHING LOGIC ---
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // --- 3. CHART.JS LOGIC ---
+        // (Jinja syntax will have red squiggly lines in some editors, this is normal and safe!)
+        const statusLabels = {{ stats.status_labels | tojson }};
+        const statusValues = {{ stats.status_values | tojson }};
+        
+        const jobLabels = {{ stats.job_labels | tojson }};
+        const jobValues = {{ stats.job_values | tojson }};
+
+        const themeColors = {
+            'Applied': '#94a3b8',      
+            'Shortlisted': '#10b981',  
+            'Interviewing': '#f59e0b', 
+            'Rejected': '#ef4444'      
+        };
+
+        const pieColors = statusLabels.map(label => themeColors[label] || '#3b82f6');
+
+        const ctxPie = document.getElementById('statusPieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusValues,
+                    backgroundColor: pieColors,
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        const ctxBar = document.getElementById('jobsBarChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: jobLabels,
+                datasets: [{
+                    label: 'Total Applications',
+                    data: jobValues,
+                    backgroundColor: '#3b82f6', 
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,635 @@
+{% extends "public_base.html" %}
+
+{% block content %}
+<div class="container">
+    
+    {% if job %}
+        <div class="info-box info-box-blue">
+            <p class="label">You are applying for:</p>
+            <h1>{{ job.job_title }}</h1>
+            <p class="sub">{{ job.department }} Team</p>
+        </div>
+    {% else %}
+        <div class="info-box info-box-green">
+            <p class="label">Manage your core data:</p>
+            <h1>My Master Profile</h1>
+            <p class="sub">Keep this updated. It will auto-fill whenever you apply to a new job!</p>
+        </div>
+    {% endif %}
+
+    <div class="card">
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 20%;"></div>
+        </div>
+        <p id="step-indicator-text" style="text-align: right; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem;">Step 1 of 5: Basic Details</p>
+
+        <form action="/submit_profile" method="POST" enctype="multipart/form-data" class="profile-form" id="wizard-form" onsubmit="return confirm('{% if job %}You cannot change or edit your application after submission. Do you really want to submit?{% else %}Save changes to your Master Profile?{% endif %}');">
+            
+            {% if job %}
+                <input type="hidden" name="applied_job_id" value="{{ job._id }}">
+                <input type="hidden" name="applied_job_title" value="{{ job.job_title }}">
+            {% else %}
+                <input type="hidden" name="applied_job_id" value="MASTER">
+            {% endif %}
+
+            <div class="form-step active" data-step="0">
+                <h3 class="section-title">Personal Information</h3>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" value="{{ profile.personal_info.first_name if profile else '' }}" required>
+                    </div>
+                    <div class="form-group half-width">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" value="{{ profile.personal_info.last_name if profile else '' }}" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>Date of Birth</label>
+                        <input type="date" name="dob" value="{{ profile.personal_info.dob if profile else '' }}" required>
+                    </div>
+                    <div class="form-group half-width">
+                        <label>Gender</label>
+                        <select name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male" {% if profile and profile.personal_info.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if profile and profile.personal_info.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if profile and profile.personal_info.gender == 'Other' %}selected{% endif %}>Other</option>
+                            <option value="Prefer not to say" {% if profile and profile.personal_info.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>Nationality</label>
+                        <input type="text" name="nationality" value="{{ profile.personal_info.nationality if profile else '' }}" required>
+                    </div>
+                    <div class="form-group half-width">
+                        <label>Profile Picture (JPG/PNG)</label>
+                        {% if profile and profile.personal_info.profile_pic %}
+                            <small style="color: var(--primary-color);">Currently saved: {{ profile.personal_info.profile_pic }}</small>
+                            <input type="hidden" name="existing_profile_pic" value="{{ profile.personal_info.profile_pic }}">
+                            <input type="file" name="profile_pic" accept="image/jpeg, image/png">
+                        {% else %}
+                            <input type="file" name="profile_pic" accept="image/jpeg, image/png" required>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <h3 class="section-title">Contact & Address</h3>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>Email Address</label>
+                        <input type="email" name="email" value="{{ profile.contact_info.email if profile else session.get('email', '') }}" required>
+                    </div>
+                    <div class="form-group half-width">
+                        <label>Phone Number</label>
+                        <input type="tel" name="phone" value="{{ profile.contact_info.phone if profile else '' }}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Street Address</label>
+                    <input type="text" name="street_address" value="{{ profile.contact_info.address.street if profile else '' }}" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>City</label>
+                        <input type="text" name="city" value="{{ profile.contact_info.address.city if profile else '' }}" required>
+                    </div>
+                    <div class="form-group half-width">
+                        <label>State / Province</label>
+                        <input type="text" name="state" value="{{ profile.contact_info.address.state if profile else '' }}" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>Zip / Postal Code</label>
+                        <input type="text" name="zip_code" value="{{ profile.contact_info.address.zip_code if profile else '' }}">
+                    </div>
+                    <div class="form-group half-width">
+                        <label>Country</label>
+                        <input type="text" name="country" value="{{ profile.contact_info.address.country if profile else '' }}" required>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <h3 class="section-title">Professional Links</h3>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>LinkedIn Profile URL</label>
+                        <input type="url" name="linkedin_url" value="{{ profile.professional_links.linkedin if profile else '' }}">
+                    </div>
+                    <div class="form-group half-width">
+                        <label>GitHub / Portfolio URL</label>
+                        <input type="url" name="portfolio_url" value="{{ profile.professional_links.portfolio if profile else '' }}">
+                    </div>
+                </div>
+
+                <div class="step-navigation flex-end">
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next: Education ➔</button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="1">
+                <div class="section-header">
+                    <h3 class="section-title">Education History</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addSection('education-container', 'education-block')">+ Add Education</button>
+                </div>
+                <div id="education-container">
+                    {% if profile and profile.education %}
+                        {% for edu in profile.education %}
+                        <div class="dynamic-block education-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Education Level</label>
+                                    <select name="education_level[]" required>
+                                        <option value="High School" {% if edu.level == 'High School' %}selected{% endif %}>High School</option>
+                                        <option value="Intermediate" {% if edu.level == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                                        <option value="Bachelors" {% if edu.level == 'Bachelors' %}selected{% endif %}>Bachelors</option>
+                                        <option value="Masters" {% if edu.level == 'Masters' %}selected{% endif %}>Masters</option>
+                                        <option value="PhD" {% if edu.level == 'PhD' %}selected{% endif %}>Ph.D.</option>
+                                    </select>
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Institute Name</label>
+                                    <input type="text" name="institute_name[]" value="{{ edu.institute_name }}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Specific Degree Name</label>
+                                    <input type="text" name="degree_name[]" value="{{ edu.degree_name }}" required>
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Grade / Division</label>
+                                    <input type="text" name="grade[]" value="{{ edu.grade }}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Obtained Marks / CGPA</label>
+                                    <input type="number" step="0.01" name="obtained_marks[]" value="{{ edu.obtained_marks }}" required>
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Total Marks / Max CGPA</label>
+                                    <input type="number" step="0.01" name="total_marks[]" value="{{ edu.total_marks }}" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Degree / Transcript (PDF/JPG/PNG)</label>
+                                {% if edu.document %}
+                                    <small style="color: var(--primary-color);">Currently saved: {{ edu.document }}</small>
+                                    <input type="hidden" name="existing_degree_doc[]" value="{{ edu.document }}">
+                                {% else %}
+                                    <input type="hidden" name="existing_degree_doc[]" value="">
+                                {% endif %}
+                                <input type="file" name="degree_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dynamic-block education-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Education Level</label>
+                                    <select name="education_level[]" required>
+                                        <option value="">Select Level</option>
+                                        <option value="High School">High School (Matric / O-Levels)</option>
+                                        <option value="Intermediate">Intermediate (FSc / A-Levels)</option>
+                                        <option value="Bachelors">Bachelors</option>
+                                        <option value="Masters">Masters</option>
+                                        <option value="PhD">Ph.D.</option>
+                                    </select>
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Institute Name</label>
+                                    <input type="text" name="institute_name[]" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Specific Degree Name</label>
+                                    <input type="text" name="degree_name[]" required>
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Grade / Division</label>
+                                    <input type="text" name="grade[]" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Obtained Marks / CGPA</label>
+                                    <input type="number" step="0.01" name="obtained_marks[]" required>
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Total Marks / Max CGPA</label>
+                                    <input type="number" step="0.01" name="total_marks[]" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Degree (PDF/JPG/PNG)</label>
+                                <input type="hidden" name="existing_degree_doc[]" value="">
+                                <input type="file" name="degree_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">🠔 Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next: Experience ➔</button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="2">
+                <div class="section-header">
+                    <h3 class="section-title">Professional Experience</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addSection('experience-container', 'experience-block')">+ Add Experience</button>
+                </div>
+                <div id="experience-container">
+                    {% if profile and profile.experience %}
+                        {% for exp in profile.experience %}
+                        <div class="dynamic-block experience-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Job Designation</label>
+                                    <input type="text" name="job_designation[]" value="{{ exp.job_designation }}">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Company Name</label>
+                                    <input type="text" name="company_name[]" value="{{ exp.company_name }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Start Date</label>
+                                    <input type="month" name="exp_start_date[]" value="{{ exp.start_date }}">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Current Status</label>
+                                    <select name="exp_status[]" class="exp-status-select" onchange="toggleEndDate(this)">
+                                        <option value="Completed" {% if exp.status == 'Completed' %}selected{% endif %}>Job Completed</option>
+                                        <option value="Current" {% if exp.status == 'Current' %}selected{% endif %}>Currently Working Here</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group end-date-group" style="{% if exp.status == 'Current' %}display: none;{% endif %}">
+                                <label>End Date</label>
+                                <input type="month" name="exp_end_date[]" value="{{ exp.end_date }}">
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Experience Letter (PDF/JPG/PNG)</label>
+                                {% if exp.document %}
+                                    <small style="color: var(--primary-color);">Currently saved: {{ exp.document }}</small>
+                                    <input type="hidden" name="existing_exp_doc[]" value="{{ exp.document }}">
+                                {% else %}
+                                    <input type="hidden" name="existing_exp_doc[]" value="">
+                                {% endif %}
+                                <input type="file" name="exp_letter_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dynamic-block experience-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Job Designation</label>
+                                    <input type="text" name="job_designation[]">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Company Name</label>
+                                    <input type="text" name="company_name[]">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Start Date</label>
+                                    <input type="month" name="exp_start_date[]">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Current Status</label>
+                                    <select name="exp_status[]" class="exp-status-select" onchange="toggleEndDate(this)">
+                                        <option value="Completed">Job Completed</option>
+                                        <option value="Current">Currently Working Here</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group end-date-group">
+                                <label>End Date</label>
+                                <input type="month" name="exp_end_date[]">
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Experience Letter</label>
+                                <input type="hidden" name="existing_exp_doc[]" value="">
+                                <input type="file" name="exp_letter_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="margin-top: 2rem;">
+                    <label>Overall Key Skills (Comma separated)</label>
+                    <input type="text" name="skills" value="{{ profile.skills | join(', ') if profile else '' }}" required placeholder="Python, Machine Learning, HTML, CSS">
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">🠔 Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next: Certifications ➔</button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="3">
+                <div class="section-header">
+                    <h3 class="section-title">Certifications</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addSection('cert-container', 'cert-block')">+ Add Certification</button>
+                </div>
+                <div id="cert-container">
+                    {% if profile and profile.certifications %}
+                        {% for cert in profile.certifications %}
+                        <div class="dynamic-block cert-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Certification Name</label>
+                                    <input type="text" name="cert_name[]" value="{{ cert.name }}">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Issuing Organization</label>
+                                    <input type="text" name="cert_org[]" value="{{ cert.organization }}">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Certificate (PDF/JPG/PNG)</label>
+                                {% if cert.document %}
+                                    <small style="color: var(--primary-color);">Currently saved: {{ cert.document }}</small>
+                                    <input type="hidden" name="existing_cert_doc[]" value="{{ cert.document }}">
+                                {% else %}
+                                    <input type="hidden" name="existing_cert_doc[]" value="">
+                                {% endif %}
+                                <input type="file" name="cert_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dynamic-block cert-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Certification Name</label>
+                                    <input type="text" name="cert_name[]">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Issuing Organization</label>
+                                    <input type="text" name="cert_org[]">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Certificate</label>
+                                <input type="hidden" name="existing_cert_doc[]" value="">
+                                <input type="file" name="cert_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <hr class="divider">
+
+                <div class="section-header">
+                    <h3 class="section-title">Recommendations / References</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addSection('rec-container', 'rec-block')">+ Add Recommendation</button>
+                </div>
+                <div id="rec-container">
+                    {% if profile and profile.recommendations %}
+                        {% for rec in profile.recommendations %}
+                        <div class="dynamic-block rec-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Recommender Name</label>
+                                    <input type="text" name="rec_name[]" value="{{ rec.name }}">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Designation & Organization</label>
+                                    <input type="text" name="rec_designation[]" value="{{ rec.designation }}">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Recommendation Letter (PDF/JPG/PNG)</label>
+                                {% if rec.document %}
+                                    <small style="color: var(--primary-color);">Currently saved: {{ rec.document }}</small>
+                                    <input type="hidden" name="existing_rec_doc[]" value="{{ rec.document }}">
+                                {% else %}
+                                    <input type="hidden" name="existing_rec_doc[]" value="">
+                                {% endif %}
+                                <input type="file" name="rec_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dynamic-block rec-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Recommender Name</label>
+                                    <input type="text" name="rec_name[]">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>Designation & Organization</label>
+                                    <input type="text" name="rec_designation[]">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Upload Recommendation Letter</label>
+                                <input type="hidden" name="existing_rec_doc[]" value="">
+                                <input type="file" name="rec_doc[]" accept=".pdf, .jpg, .jpeg, .png">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">🠔 Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next: Finalize ➔</button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="4">
+                <div class="section-header">
+                    <h3 class="section-title">Research Papers</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addSection('research-container', 'research-block')">+ Add Paper</button>
+                </div>
+                <div id="research-container">
+                    {% if profile and profile.research %}
+                        {% for res in profile.research %}
+                        <div class="dynamic-block research-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-group">
+                                <label>Research Paper Title</label>
+                                <input type="text" name="research_title[]" value="{{ res.title }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Research Paper Link</label>
+                                <input type="url" name="research_link[]" value="{{ res.link }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dynamic-block research-block">
+                            <button type="button" class="btn-remove" onclick="removeSection(this)">✕ Remove</button>
+                            <div class="form-group">
+                                <label>Research Paper Title</label>
+                                <input type="text" name="research_title[]">
+                            </div>
+                            <div class="form-group">
+                                <label>Research Paper Link</label>
+                                <input type="url" name="research_link[]">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="margin-top: 2rem;">
+                    <label>Upload Main Resume (PDF/DOCX)</label>
+                    {% if profile and profile.resume_filename %}
+                        <small style="color: var(--primary-color); margin-bottom: 0.5rem;">Currently saved: {{ profile.resume_filename }}</small>
+                        <input type="hidden" name="existing_resume" value="{{ profile.resume_filename }}">
+                        <input type="file" name="resume" accept=".pdf, .doc, .docx">
+                    {% else %}
+                        <input type="file" name="resume" accept=".pdf, .doc, .docx" required>
+                    {% endif %}
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">🠔 Back</button>
+                    
+                    {% if job %}
+                        <button type="submit" class="btn btn-success">Submit Application ✔</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-success">Save Master Profile ✔</button>
+                    {% endif %}
+                    
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    // --- Toggle End Date visibility based on "Currently Working" ---
+    function toggleEndDate(selectElement) {
+        const parentBlock = selectElement.closest('.experience-block');
+        const endDateGroup = parentBlock.querySelector('.end-date-group');
+        if (selectElement.value === 'Current') {
+            endDateGroup.style.display = 'none';
+        } else {
+            endDateGroup.style.display = 'flex';
+        }
+    }
+
+    let currentStep = 0;
+    const steps = document.querySelectorAll('.form-step');
+    const progressBar = document.getElementById('progressBar');
+    const stepText = document.getElementById('step-indicator-text');
+    
+    const stepTitles = [
+        "Basic Details", 
+        "Education History", 
+        "Professional Experience", 
+        "Certifications & References", 
+        "Research & Finalize"
+    ];
+
+    function showStep(index) {
+        steps.forEach((step, i) => {
+            step.classList.toggle('active', i === index);
+        });
+        
+        const progressPercentage = ((index + 1) / steps.length) * 100;
+        progressBar.style.width = progressPercentage + "%";
+        stepText.innerText = `Step ${index + 1} of ${steps.length}: ${stepTitles[index]}`;
+        
+        document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function nextStep() {
+        const currentStepDiv = steps[currentStep];
+        const inputs = currentStepDiv.querySelectorAll('input, select, textarea');
+        let allValid = true;
+
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                allValid = false;
+            }
+        });
+
+        if (allValid && currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+    function addSection(containerId, blockClass) {
+        const container = document.getElementById(containerId);
+        const blockToClone = container.querySelector('.' + blockClass);
+        const newBlock = blockToClone.cloneNode(true);
+        
+        const inputs = newBlock.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.type !== 'file') {
+                input.value = '';
+            }
+        });
+        
+        // Reset experience specific logic when adding a new section
+        const statusSelect = newBlock.querySelector('.exp-status-select');
+        if (statusSelect) {
+            statusSelect.value = 'Completed';
+            newBlock.querySelector('.end-date-group').style.display = 'flex'; 
+        }
+        
+        const smallTexts = newBlock.querySelectorAll('small');
+        smallTexts.forEach(small => {
+            if (small.innerText.includes('Currently saved')) {
+                small.remove();
+            }
+        });
+        
+        container.appendChild(newBlock);
+    }
+
+    function removeSection(button) {
+        const block = button.closest('.dynamic-block');
+        const container = block.parentElement;
+        
+        if (container.querySelectorAll('.dynamic-block').length > 1) {
+            block.remove();
+        } else {
+            alert("You must leave at least one entry, or leave it blank if not applicable.");
+        }
+    }
+</script>
+{% endblock %}
