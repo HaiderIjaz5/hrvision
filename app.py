@@ -165,8 +165,9 @@ def handle_file_size_error(e):
 # --- STATIC PUBLIC ROUTES ---
 # ==========================================
 @app.route('/')
-def index():
-    return render_template('index.html')
+def root():
+    # Redirect to your actual home page function!
+    return redirect(url_for('index'))
 
 @app.route('/about')
 def about():
