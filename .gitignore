@@ -1,7 +1,6 @@
 # Environments
 venv/
 env/
-Demo/
 .env
 
 # Python Cache
@@ -10,3 +9,4 @@ __pycache__/
 
 # Uploaded Resumes and Files (We don't want to push test PDFs to GitHub)
 uploads/
+Demo/
