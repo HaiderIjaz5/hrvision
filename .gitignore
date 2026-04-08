@@ -1,6 +1,7 @@
 # Environments
 venv/
 env/
+Demo/
 .env
 
 # Python Cache
