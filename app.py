@@ -165,8 +165,9 @@ def handle_file_size_error(e):
 # --- STATIC PUBLIC ROUTES ---
 # ==========================================
 @app.route('/')
-def index():
-    return render_template('index.html')
+def root():
+    # Redirect to your actual home page function!
+    return redirect(url_for('index'))
 
 @app.route('/about')
 def about():
@@ -958,4 +959,6 @@ def submit_profile():
         return redirect(url_for('candidate_dashboard'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Use the port Render provides, or default to 5000 locally
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
