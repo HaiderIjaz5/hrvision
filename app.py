@@ -164,10 +164,14 @@ def handle_file_size_error(e):
 # ==========================================
 # --- STATIC PUBLIC ROUTES ---
 # ==========================================
+@app.route('/home_screen') 
+def my_custom_home():   # <--- THIS IS THE MAGIC WORD!
+    return render_template('index.html')
+
 @app.route('/')
 def root():
-    # Redirect to your actual home page function!
-    return redirect(url_for('index'))
+    # Replace 'my_custom_home' with whatever your function is actually named!
+    return redirect(url_for('my_custom_home'))
 
 @app.route('/about')
 def about():
