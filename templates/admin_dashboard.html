@@ -31,6 +31,36 @@
         </div>
     </div>
 
+    <div id="interviewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999999; justify-content:center; align-items:center;">
+        <div style="background:var(--card-bg); padding:2rem; border-radius:12px; width:90%; max-width:500px; box-shadow:0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color);">
+            <h2 style="color:var(--text-main); margin-bottom:0.5rem; margin-top:0;">📅 Schedule Interview</h2>
+            <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">The candidate will receive an automated email with these details.</p>
+
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.9rem; font-weight: 600;">Date</label>
+                <input type="date" id="modal_date" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.9rem; font-weight: 600;">Time</label>
+                <input type="time" id="modal_time" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.9rem; font-weight: 600;">Venue or Meeting Link</label>
+                <input type="text" id="modal_venue" placeholder="e.g., Office Rm 402 or Google Meet link..." style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+            </div>
+            
+            <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; background-color: #f8fafc; padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                <input type="checkbox" id="modal_inform_later" onchange="toggleInterviewInputs()" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
+                <label for="modal_inform_later" style="font-size:0.9rem; cursor: pointer; color: var(--text-main);">Check this to skip details and tell the candidate they will "be informed soon".</label>
+            </div>
+
+            <div style="display:flex; gap:1rem;">
+                <button onclick="closeInterviewModal()" class="btn btn-secondary" style="flex:1;">Cancel</button>
+                <button onclick="submitInterviewDetails()" class="btn btn-primary" style="flex:1; background-color: var(--success); border-color: var(--success);">Send Invite Email</button>
+            </div>
+        </div>
+    </div>
+
     <div class="admin-safe-wrapper">
         <aside class="sidebar">
             <h2>HRVision AI</h2>
@@ -221,18 +251,21 @@
                                 <td style="min-width: 130px;">
                                     <span class="badge badge-status" style="margin-bottom: 0.5rem; display: block; text-align: center;">{{ candidate.status }}</span>
                                     
-                                    <form action="{{ url_for('update_status', candidate_id=candidate._id) }}" method="POST" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                        <select name="status" style="padding: 0.35rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                                    <form id="statusForm_{{ candidate._id }}" action="{{ url_for('update_status', candidate_id=candidate._id) }}" method="POST" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        <select name="status" id="statusSelect_{{ candidate._id }}" style="padding: 0.35rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color);">
                                             <option value="Applied" {% if candidate.status == 'Applied' %}selected{% endif %}>Applied</option>
                                             <option value="Shortlisted" {% if candidate.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
                                             <option value="Interviewing" {% if candidate.status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+                                            <option value="Hired" {% if candidate.status == 'Hired' %}selected{% endif %}>Hired</option>
                                             <option value="Rejected" {% if candidate.status == 'Rejected' %}selected{% endif %}>Rejected</option>
                                         </select>
-                                        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">Update Status</button>
-                                    </form>
+                                        
+                                        <input type="hidden" name="interview_date" id="hidden_date_{{ candidate._id }}">
+                                        <input type="hidden" name="interview_time" id="hidden_time_{{ candidate._id }}">
+                                        <input type="hidden" name="interview_venue" id="hidden_venue_{{ candidate._id }}">
+                                        <input type="hidden" name="inform_later" id="hidden_inform_later_{{ candidate._id }}">
 
-                                    <form action="{{ url_for('delete_candidate', candidate_id=candidate._id) }}" method="POST" onsubmit="return confirm('Permanently delete this candidate?');">
-                                        <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">🗑️ Delete</button>
+                                        <button type="button" onclick="handleStatusUpdate('{{ candidate._id }}')" class="btn btn-primary btn-sm" style="width: 100%;">Update Status</button>
                                     </form>
                                 </td>
                             </tr>
@@ -303,7 +336,7 @@
         const jobLabels = {{ stats.job_labels | tojson | safe }};
         const jobValues = {{ stats.job_values | tojson | safe }};
 
-        const themeColors = { 'Applied': '#94a3b8', 'Shortlisted': '#10b981', 'Interviewing': '#f59e0b', 'Rejected': '#ef4444' };
+        const themeColors = { 'Applied': '#94a3b8', 'Shortlisted': '#10b981', 'Interviewing': '#f59e0b','Hired': '#065f46', 'Rejected': '#ef4444' };
         const pieColors = statusLabels.map(label => themeColors[label] || '#3b82f6');
 
         new Chart(document.getElementById('statusPieChart').getContext('2d'), {
@@ -317,6 +350,58 @@
             data: { labels: jobLabels, datasets: [{ label: 'Total Applications', data: jobValues, backgroundColor: '#3b82f6', borderRadius: 4 }] },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
         });
+
+        // --- 5. INTERVIEW SCHEDULING LOGIC ---
+        let currentCandidateId = null;
+
+        function handleStatusUpdate(candidateId) {
+            const statusDropdown = document.getElementById('statusSelect_' + candidateId).value;
+            
+            if (statusDropdown === 'Interviewing') {
+                // If they selected Interviewing, pop up the modal!
+                currentCandidateId = candidateId;
+                
+                // Clear out old data
+                document.getElementById('modal_date').value = '';
+                document.getElementById('modal_time').value = '';
+                document.getElementById('modal_venue').value = '';
+                document.getElementById('modal_inform_later').checked = false;
+                toggleInterviewInputs();
+                
+                // Show modal
+                document.getElementById('interviewModal').style.display = 'flex';
+            } else {
+                // If it's Shortlisted or Rejected, just submit normally
+                document.getElementById('statusForm_' + candidateId).submit();
+            }
+        }
+
+        function toggleInterviewInputs() {
+            // Disable the input boxes if the HR admin checks "Inform Later"
+            const informLater = document.getElementById('modal_inform_later').checked;
+            document.getElementById('modal_date').disabled = informLater;
+            document.getElementById('modal_time').disabled = informLater;
+            document.getElementById('modal_venue').disabled = informLater;
+        }
+
+        function closeInterviewModal() {
+            document.getElementById('interviewModal').style.display = 'none';
+            currentCandidateId = null;
+        }
+
+        function submitInterviewDetails() {
+            if (!currentCandidateId) return;
+
+            // 1. Move the data from the visual modal into the hidden form inputs
+            document.getElementById('hidden_date_' + currentCandidateId).value = document.getElementById('modal_date').value;
+            document.getElementById('hidden_time_' + currentCandidateId).value = document.getElementById('modal_time').value;
+            document.getElementById('hidden_venue_' + currentCandidateId).value = document.getElementById('modal_venue').value;
+            document.getElementById('hidden_inform_later_' + currentCandidateId).value = document.getElementById('modal_inform_later').checked ? 'true' : 'false';
+
+            // 2. Actually submit the form to Python
+            document.getElementById('statusForm_' + currentCandidateId).submit();
+            closeInterviewModal();
+        }
     </script>
 </body>
 </html>

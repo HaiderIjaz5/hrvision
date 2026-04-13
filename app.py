@@ -62,6 +62,25 @@ if not users_collection.find_one({"email": "admin@hrvision.com"}):
 MY_EMAIL = os.getenv('MAIL_USERNAME')
 MY_APP_PASSWORD = os.getenv('MAIL_PASSWORD')
 
+def send_application_receipt_email(candidate_email, candidate_name, job_title):
+    subject = f"Application Received: {job_title}"
+    body = f"Dear {candidate_name},\n\nThank you for applying for the {job_title} position at HRVision.\n\nWe have successfully received your application and resume. Our AI screening engine and recruitment team will review your profile shortly. You can track your application status anytime through your Candidate Dashboard.\n\nBest regards,\nHRVision Talent Acquisition"
+    
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = MY_EMAIL
+    msg['To'] = candidate_email
+    
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(MY_EMAIL, MY_APP_PASSWORD)
+        server.sendmail(MY_EMAIL, candidate_email, msg.as_string())
+        server.quit()
+        print(f"✅ Automated Application Receipt Email Sent to {candidate_email}")
+    except Exception as e:
+        print(f"❌ Failed to send application receipt email: {e}")
+
 def send_reset_email(user_email, token):
     reset_url = url_for('reset_token', token=token, _external=True)
     msg = MIMEText(f"Hello,\n\nTo reset your HRVision password, please click the link below:\n\n{reset_url}\n\nThis link will expire in 1 hour.")
@@ -93,16 +112,32 @@ def send_contact_email(user_name, user_email, user_message):
     except Exception as e:
         return False
 
-def send_status_email(candidate_email, candidate_name, job_title, new_status, hr_name):
+def send_status_email(candidate_email, candidate_name, job_title, new_status, hr_name, interview_details=None):
     if new_status == 'Shortlisted':
         subject = f"Congratulations! You've been shortlisted for {job_title}"
         body = f"Dear {candidate_name},\n\nGreat news! The HRVision AI and our recruitment team have reviewed your profile, and we are thrilled to inform you that you have been shortlisted for the {job_title} position.\n\nOur team will be in touch shortly regarding the next steps.\n\nBest regards,\n{hr_name}\nHRVision Talent Acquisition"
+    
     elif new_status == 'Interviewing':
         subject = f"Interview Invitation: {job_title} at HRVision"
-        body = f"Dear {candidate_name},\n\nFollowing a review of your exceptional profile, we would like to formally invite you to an interview for the {job_title} role.\n\nPlease check your portal and keep an eye on your inbox for scheduling details.\n\nBest regards,\n{hr_name}\nHRVision Talent Acquisition"
+        body = f"Dear {candidate_name},\n\nFollowing a review of your exceptional profile, we would like to formally invite you to an interview for the {job_title} role.\n\n"
+        
+        # --- NEW: DYNAMIC INTERVIEW DETAILS ---
+        if interview_details:
+            if interview_details.get('inform_later') == 'true':
+                body += "Our team is currently finalizing the schedule. We will be reaching out to you very soon with the exact date, time, and venue/meeting link for your interview.\n\n"
+            else:
+                body += f"Here are your interview details:\n"
+                body += f"📅 Date: {interview_details.get('date', 'TBD')}\n"
+                body += f"⏰ Time: {interview_details.get('time', 'TBD')}\n"
+                body += f"📍 Venue/Link: {interview_details.get('venue', 'TBD')}\n\n"
+                
+        body += f"Please reply to this email to confirm your availability.\n\nBest regards,\n{hr_name}\nHRVision Talent Acquisition"
+    elif new_status == 'Hired':
+        subject = f"Job Offer: {job_title} at HRVision"
+        body = f"Dear {candidate_name},\n\nCongratulations! After a thorough review and interview process, we are absolutely thrilled to offer you the position of {job_title} at HRVision.\n\nOur HR team will be reaching out to you shortly with your official offer letter and onboarding details.\n\nWelcome to the team!\n\nBest regards,\n{hr_name}\nHRVision Talent Acquisition"   
     elif new_status == 'Rejected':
         subject = f"Update on your application for {job_title}"
-        body = f"Dear {candidate_name},\n\nThank you for taking the time to apply for the {job_title} position. \n\nWhile your background is impressive, we have decided to move forward with other candidates whose profiles more closely align with the specific needs of this role at this time.\n\nWe will keep your Master Profile in our database for future opportunities.\n\nWe wish you the best in your career search.\n\nSincerely,\n{hr_name}\nHRVision Talent Acquisition"
+        body = f"Dear {candidate_name},\n\nThank you for applying for the {job_title} position. \n\nWhile your background is impressive, we have decided to move forward with other candidates whose profiles more closely align with the specific needs of this role at this time.\n\nWe wish you the best in your career search.\n\nSincerely,\n{hr_name}\nHRVision Talent Acquisition"
     else:
         return 
         
@@ -119,6 +154,7 @@ def send_status_email(candidate_email, candidate_name, job_title, new_status, hr
         print(f"✅ Automated Email Sent to {candidate_email} for status: {new_status}")
     except Exception as e:
         print(f"❌ Failed to send status email: {e}")
+    
 
 # ==========================================
 # --- FILE HANDLING ---
@@ -334,7 +370,7 @@ def admin_dashboard():
         my_job_ids = [str(job['_id']) for job in my_jobs]
         candidates = list(candidates_collection.find({"applied_job_id": {"$in": my_job_ids}}))
     
-    status_counts = {'Applied': 0, 'Shortlisted': 0, 'Interviewing': 0, 'Rejected': 0}
+    status_counts = {'Applied': 0, 'Shortlisted': 0, 'Interviewing': 0, 'Hired': 0, 'Rejected': 0}
     job_popularity = {}
 
     for c in candidates:
@@ -594,8 +630,19 @@ def update_status(candidate_id):
             j_title = candidate.get('applied_job_title', 'a position')
             hr_name = candidate.get('applied_job_admin_name', session.get('user_name', 'HR Team'))
             
-            if c_email and new_status in ['Shortlisted', 'Interviewing', 'Rejected']:
-                send_status_email(c_email, c_name, j_title, new_status, hr_name)
+            # --- NEW: EXTRACT INTERVIEW DETAILS ---
+            interview_details = None
+            if new_status == 'Interviewing':
+                interview_details = {
+                    "date": request.form.get('interview_date'),
+                    "time": request.form.get('interview_time'),
+                    "venue": request.form.get('interview_venue'),
+                    "inform_later": request.form.get('inform_later')
+                }
+            
+            if c_email and new_status in ['Shortlisted', 'Interviewing', 'Rejected', 'Hired']:
+                # Pass the interview_details to the email function!
+                send_status_email(c_email, c_name, j_title, new_status, hr_name, interview_details)
                 
             flash(f"Candidate Status successfully updated to '{new_status}' and email notification sent!")
         else:
@@ -631,7 +678,15 @@ def delete_candidate(candidate_id):
 @app.route('/jobs')
 def job_board():
     open_jobs = list(jobs_collection.find({"status": "Open"}).sort("created_at", -1))
-    return render_template('job_board.html', jobs=open_jobs)
+    
+    # Pass a list of saved jobs to the frontend so the bookmark buttons light up!
+    saved_job_ids = []
+    if session.get('role') == 'candidate':
+        profile = profiles_collection.find_one({"user_id": session['user_id']})
+        if profile:
+            saved_job_ids = profile.get('saved_jobs', [])
+            
+    return render_template('job_board.html', jobs=open_jobs, saved_job_ids=saved_job_ids)
 
 @app.route('/job_details/<job_id>')
 def job_details(job_id):
@@ -663,8 +718,15 @@ def candidate_dashboard():
                 application['job_deadline'] = 'Unknown'
         else:
             application['job_deadline'] = 'N/A'
+    
+    profile = profiles_collection.find_one({"user_id": session['user_id']})
+    saved_job_ids = profile.get('saved_jobs', []) if profile else []
+    
+    # Convert string IDs back to ObjectIds to query the jobs collection
+    obj_ids = [ObjectId(j_id) for j_id in saved_job_ids if ObjectId.is_valid(j_id)]
+    saved_jobs = list(jobs_collection.find({"_id": {"$in": obj_ids}}))
 
-    return render_template('candidate_dashboard.html', applications=applications)
+    return render_template('candidate_dashboard.html', applications=applications, saved_jobs=saved_jobs)
 
 @app.route('/candidate/settings', methods=['GET', 'POST'])
 def candidate_settings():
@@ -733,6 +795,29 @@ def apply_job(job_id):
         existing_profile = candidates_collection.find_one({"user_id": session['user_id']}, sort=[("applied_at", -1)])
 
     return render_template('candidate_profile.html', job=job, profile=existing_profile)
+
+@app.route('/save_job/<job_id>', methods=['POST'])
+def save_job(job_id):
+    if 'user_id' not in session or session.get('role') != 'candidate':
+        return {"status": "error", "message": "Unauthorized"}, 401
+    
+    user_id = session['user_id']
+    profile = profiles_collection.find_one({"user_id": user_id})
+    saved_jobs = profile.get("saved_jobs", []) if profile else []
+    
+    if job_id in saved_jobs:
+        saved_jobs.remove(job_id) # Unsave if already saved
+        action = "unsaved"
+    else:
+        saved_jobs.append(job_id) # Save it
+        action = "saved"
+        
+    profiles_collection.update_one(
+        {"user_id": user_id},
+        {"$set": {"saved_jobs": saved_jobs}},
+        upsert=True
+    )
+    return {"status": "success", "action": action}
 
 @app.route('/submit_profile', methods=['POST'])
 def submit_profile():
@@ -940,7 +1025,7 @@ def submit_profile():
             flash("Your Master Profile has been updated successfully! It will automatically fill future job applications.")
             return redirect(url_for('candidate_dashboard'))
 
-        # --- EXPLAINABLE AI INTEGRATION ---
+# --- EXPLAINABLE AI INTEGRATION (MICROSERVICE CALL) ---
         final_ai_score = None
         matched_skills = []
         missing_skills = []
@@ -948,13 +1033,35 @@ def submit_profile():
         if target_job and resume_filename:
             full_resume_path = os.path.join(app.config['UPLOAD_FOLDER'], resume_filename)
             
-            # Catch all 3 variables from the upgraded AI Engine
-            final_ai_score, matched_skills, missing_skills = calculate_resume_score(
-                resume_path=full_resume_path,
-                job_description=target_job.get("job_description", ""),
-                mandatory_skills=target_job.get("mandatory_skills", []),
-                candidate_skills=skills_list
-            )
+            # 1. We MUST extract the text from the PDF before sending it!
+            candidate_full_text = extract_text_from_file(full_resume_path)
+            
+            try:
+                # 🛑 CONNECTING TO YOUR NEW HUGGING FACE SERVER 🛑
+                ai_server_url = "https://haiderijaz-hrvision-ai-engine.hf.space/api/score"
+                
+                # 2. Send the text to Hugging Face to do the heavy math
+                response = requests.post(ai_server_url, json={
+                    "resume_text": candidate_full_text,
+                    "job_description": target_job.get("job_description", ""),
+                    "mandatory_skills": target_job.get("mandatory_skills", []),
+                    "candidate_skills": skills_list
+                }, timeout=30)
+                
+                # 3. Catch the answer coming back from Hugging Face!
+                if response.status_code == 200:
+                    ai_results = response.json()
+                    final_ai_score = ai_results.get("ai_score")
+                    matched_skills = ai_results.get("matched", [])
+                    missing_skills = ai_results.get("missing", [])
+                else:
+                    print(f"AI Server returned an error: {response.status_code}")
+                    final_ai_score = 0.0
+                    
+            except Exception as e:
+                # 4. The except block catches crashes if Hugging Face is asleep
+                print(f"Failed to connect to AI Server: {e}")
+                final_ai_score = 0.0
 
         # Create the specific Job Application data block
         candidate_data = master_profile_data.copy()
@@ -971,6 +1078,8 @@ def submit_profile():
         candidate_data.pop("updated_at", None) 
 
         candidates_collection.insert_one(candidate_data)
+        send_application_receipt_email(email, first_name, applied_job_title)
+        
         flash("Application submitted successfully!")
         return redirect(url_for('candidate_dashboard'))
 

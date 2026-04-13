@@ -7,13 +7,41 @@
         <p style="color: var(--text-muted); font-size: 1.1rem;">Explore open roles and let our AI match you to your perfect career.</p>
     </div>
 
-    <div style="max-width: 700px; margin: 0 auto 3rem auto;">
-        <input type="text" id="jobSearch" class="search-input" placeholder="🔍 Search for roles, departments, or skills (e.g. 'Python', 'Remote')..." style="width: 100%; padding: 1rem 1.5rem; border-radius: 999px; border: 1px solid var(--border-color); font-size: 1.05rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s ease;">
+    {% set departments = jobs | map(attribute='department') | unique | list %}
+    {% set locations = jobs | map(attribute='location') | reject('none') | unique | list %}
+
+    <div style="max-width: 900px; margin: 0 auto 3rem auto; display: flex; flex-direction: column; gap: 1rem;">
+        <input type="text" id="jobSearch" class="search-input" placeholder="🔍 Search for roles, skills, or keywords (e.g. 'Python')..." style="width: 100%; padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1.05rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <select id="filterDept" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: white; font-size: 0.95rem; color: var(--text-main);">
+                <option value="">🏢 All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="filterLocation" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: white; font-size: 0.95rem; color: var(--text-main);">
+                <option value="">📍 All Locations</option>
+                {% for loc in locations %}
+                    {% if loc and loc != 'Not Specified' %}
+                        <option value="{{ loc }}">{{ loc }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <select id="filterModality" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: white; font-size: 0.95rem; color: var(--text-main);">
+                <option value="">💻 All Modalities</option>
+                <option value="On-site">On-site</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Remote">Remote</option>
+            </select>
+        </div>
     </div>
 
     <div class="job-grid" id="jobGrid">
         {% for job in jobs %}
-        <div class="card job-card" style="margin-bottom: 1.5rem; padding: 2rem; transition: transform 0.2s ease;">
+        <div class="card job-card" data-dept="{{ job.department }}" data-location="{{ job.location }}" data-modality="{{ job.modality }}" style="margin-bottom: 1.5rem; padding: 2rem; transition: transform 0.2s ease;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h2 style="color: var(--text-main); margin-bottom: 0.5rem;" class="job-title">{{ job.job_title }}</h2>
@@ -32,7 +60,16 @@
                     </p>
                 </div>
                 
-                <a href="{{ url_for('job_details', job_id=job._id) }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; background-color: var(--card-bg); color: var(--primary-color); border: 1px solid var(--primary-color);">View Job Details</a>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    {% if session.get('role') == 'candidate' %}
+                        {% set is_saved = job._id | string in saved_job_ids %}
+                        <button onclick="toggleSaveJob('{{ job._id }}', this)" class="btn" style="padding: 0.8rem 1rem; border-radius: 6px; font-weight: 600; transition: all 0.2s; background-color: {% if is_saved %}#eff6ff{% else %}var(--card-bg){% endif %}; color: {% if is_saved %}var(--primary-color){% else %}var(--text-muted){% endif %}; border: 1px solid {% if is_saved %}var(--primary-color){% else %}var(--border-color){% endif %};" title="Save Job">
+                            <span class="bookmark-icon">{% if is_saved %}🔖 Saved{% else %}🔖 Save{% endif %}</span>
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('job_details', job_id=job._id) }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; background-color: var(--card-bg); color: var(--primary-color); border: 1px solid var(--primary-color);">View Job Details</a>
+                </div>
                 
             </div>
 
@@ -63,14 +100,31 @@
 </div>
 
 <script>
-    document.getElementById('jobSearch')?.addEventListener('input', function(e) {
-        const searchQuery = e.target.value.toLowerCase();
+    function filterJobs() {
+        // 1. Get the current value of all 4 filters
+        const searchQuery = document.getElementById('jobSearch').value.toLowerCase();
+        const deptFilter = document.getElementById('filterDept').value;
+        const locFilter = document.getElementById('filterLocation').value;
+        const modFilter = document.getElementById('filterModality').value;
+
         const jobCards = document.querySelectorAll('.job-card');
         let visibleCount = 0;
 
         jobCards.forEach(card => {
+            // 2. Get the data from the specific card
             const cardText = card.innerText.toLowerCase();
-            if (cardText.includes(searchQuery)) {
+            const cardDept = card.getAttribute('data-dept');
+            const cardLoc = card.getAttribute('data-location');
+            const cardMod = card.getAttribute('data-modality');
+
+            // 3. Check if the card matches the filters (an empty filter "" matches everything)
+            const matchesText = cardText.includes(searchQuery);
+            const matchesDept = deptFilter === "" || cardDept === deptFilter;
+            const matchesLoc = locFilter === "" || cardLoc === locFilter;
+            const matchesMod = modFilter === "" || cardMod === modFilter;
+
+            // 4. Show card only if it matches ALL active filters
+            if (matchesText && matchesDept && matchesLoc && matchesMod) {
                 card.style.display = '';
                 visibleCount++;
             } else {
@@ -78,6 +132,7 @@
             }
         });
 
+        // 5. Handle the "No Jobs Found" message
         const noJobsMessage = document.getElementById('noJobsMessage');
         if (noJobsMessage) {
             if (visibleCount === 0 && jobCards.length > 0) {
@@ -86,6 +141,38 @@
                 noJobsMessage.style.display = 'none';
             }
         }
-    });
+    }
+
+    // Attach the filter function to run whenever the user types or changes a dropdown
+    document.getElementById('jobSearch')?.addEventListener('input', filterJobs);
+    document.getElementById('filterDept')?.addEventListener('change', filterJobs);
+    document.getElementById('filterLocation')?.addEventListener('change', filterJobs);
+    document.getElementById('filterModality')?.addEventListener('change', filterJobs);
+
+    function toggleSaveJob(jobId, btnElement) {
+        fetch(`/save_job/${jobId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (response.status === 401) { window.location.href = '/login'; return; }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.status === 'success') {
+                if (data.action === 'saved') {
+                    btnElement.style.backgroundColor = '#eff6ff';
+                    btnElement.style.color = 'var(--primary-color)';
+                    btnElement.style.borderColor = 'var(--primary-color)';
+                    btnElement.querySelector('.bookmark-icon').innerText = '🔖 Saved';
+                } else {
+                    btnElement.style.backgroundColor = 'var(--card-bg)';
+                    btnElement.style.color = 'var(--text-muted)';
+                    btnElement.style.borderColor = 'var(--border-color)';
+                    btnElement.querySelector('.bookmark-icon').innerText = '🔖 Save';
+                }
+            }
+        }).catch(error => console.error('Error:', error));
+    }
 </script>
 {% endblock %}
