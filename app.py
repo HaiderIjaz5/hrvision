@@ -71,7 +71,7 @@ def send_application_receipt_email(candidate_email, candidate_name, job_title):
     msg['To'] = candidate_email
     
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(MY_EMAIL, MY_APP_PASSWORD)
         server.sendmail(MY_EMAIL, candidate_email, msg.as_string())
@@ -87,7 +87,7 @@ def send_reset_email(user_email, token):
     msg['From'] = MY_EMAIL
     msg['To'] = user_email
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(MY_EMAIL, MY_APP_PASSWORD)
         server.sendmail(MY_EMAIL, user_email, msg.as_string())
@@ -102,7 +102,7 @@ def send_contact_email(user_name, user_email, user_message):
     msg['From'] = MY_EMAIL
     msg['To'] = receiver_email
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(MY_EMAIL, MY_APP_PASSWORD)
         server.sendmail(MY_EMAIL, receiver_email, msg.as_string())
@@ -145,7 +145,7 @@ def send_status_email(candidate_email, candidate_name, job_title, new_status, hr
     msg['From'] = MY_EMAIL
     msg['To'] = candidate_email
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(MY_EMAIL, MY_APP_PASSWORD)
         server.sendmail(MY_EMAIL, candidate_email, msg.as_string())
