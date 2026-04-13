@@ -14,8 +14,7 @@ from io import StringIO
 import PyPDF2
 import docx
 from dotenv import load_dotenv
-
-from ai_engine import calculate_resume_score
+import requests
 
 # Load environment variables from .env file
 load_dotenv()
