@@ -52,7 +52,13 @@
                             <label>Department</label>
                             <input type="text" name="department" value="{{ job.department }}" required>
                         </div>
+                        
                     </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Job Location (City, Country)</label>
+                        <input type="text" name="location" value="{{ job.location if job else '' }}" required placeholder="e.g., Lahore, Pakistan (or 'Anywhere' if Remote)">
+                    </div>
+                    
 
                     <div class="form-row">
                         <div class="form-group half-width">

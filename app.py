@@ -164,7 +164,7 @@ def handle_file_size_error(e):
 # ==========================================
 # --- STATIC PUBLIC ROUTES ---
 # ==========================================
-@app.route('/home_screen') 
+@app.route('/home') 
 def my_custom_home():   # <--- THIS IS THE MAGIC WORD!
     return render_template('index.html')
 
@@ -470,6 +470,7 @@ def submit_job():
             "admin_name": session.get('user_name'),
             "job_title": request.form.get('job_title'),
             "department": request.form.get('department'),
+            "location": request.form.get('location', 'Not Specified'),
             "modality": request.form.get('modality'),
             "employment_type": request.form.get('employment_type'),
             "deadline": request.form.get('deadline'),
@@ -526,6 +527,7 @@ def edit_job(job_id):
         update_data = {
             "job_title": request.form.get('job_title'),
             "department": request.form.get('department'),
+            "location": request.form.get('location', 'Not Specified'),
             "modality": request.form.get('modality'),
             "employment_type": request.form.get('employment_type'),
             "deadline": request.form.get('deadline'),
@@ -803,11 +805,18 @@ def submit_profile():
                 })
 
         # --- PROCESS EXPERIENCE ARRAYS (WITH DATE CALCULATIONS) ---
+        # --- PROCESS EXPERIENCE ARRAYS (WITH DATE CALCULATIONS) ---
         designations = request.form.getlist('job_designation[]')
         companies = request.form.getlist('company_name[]')
         exp_statuses = request.form.getlist('exp_status[]')
         start_dates = request.form.getlist('exp_start_date[]')
         end_dates = request.form.getlist('exp_end_date[]')
+        
+        # --- NEW FIELDS ---
+        locations = request.form.getlist('exp_location[]')
+        modalities = request.form.getlist('exp_modality[]')
+        emp_types = request.form.getlist('exp_type[]')
+        
         exp_docs = request.files.getlist('exp_letter_doc[]')
         existing_exp_docs = request.form.getlist('existing_exp_doc[]') 
         
@@ -842,6 +851,9 @@ def submit_profile():
                 experience_history.append({
                     "job_designation": designations[i],
                     "company_name": companies[i],
+                    "location": locations[i] if i < len(locations) else "",            # <--- NEW
+                    "modality": modalities[i] if i < len(modalities) else "",          # <--- NEW
+                    "employment_type": emp_types[i] if i < len(emp_types) else "",     # <--- NEW
                     "start_date": start_str,
                     "end_date": "" if status == 'Current' else end_str,
                     "status": status,
@@ -965,4 +977,4 @@ def submit_profile():
 if __name__ == '__main__':
     # Use the port Render provides, or default to 5000 locally
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)

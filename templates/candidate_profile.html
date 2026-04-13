@@ -271,6 +271,32 @@
                             
                             <div class="form-row">
                                 <div class="form-group half-width">
+                                    <label>Location (City, Country)</label>
+                                    <input type="text" name="exp_location[]" value="{{ exp.location }}" placeholder="e.g., Lahore, PK">
+                                </div>
+                                <div class="form-group half-width" style="display: flex; gap: 0.5rem;">
+                                    <div style="flex: 1;">
+                                        <label>Modality</label>
+                                        <select name="exp_modality[]">
+                                            <option value="On-site" {% if exp.modality == 'On-site' %}selected{% endif %}>On-site</option>
+                                            <option value="Remote" {% if exp.modality == 'Remote' %}selected{% endif %}>Remote</option>
+                                            <option value="Hybrid" {% if exp.modality == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label>Job Type</label>
+                                        <select name="exp_type[]">
+                                            <option value="Full-Time" {% if exp.employment_type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
+                                            <option value="Part-Time" {% if exp.employment_type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
+                                            <option value="Contract" {% if exp.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                                            <option value="Internship" {% if exp.employment_type == 'Internship' %}selected{% endif %}>Internship</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group half-width">
                                     <label>Start Date</label>
                                     <input type="month" name="exp_start_date[]" value="{{ exp.start_date }}">
                                 </div>
@@ -311,6 +337,32 @@
                                 <div class="form-group half-width">
                                     <label>Company Name</label>
                                     <input type="text" name="company_name[]">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Location (City, Country)</label>
+                                    <input type="text" name="exp_location[]" placeholder="e.g., Lahore, PK">
+                                </div>
+                                <div class="form-group half-width" style="display: flex; gap: 0.5rem;">
+                                    <div style="flex: 1;">
+                                        <label>Modality</label>
+                                        <select name="exp_modality[]">
+                                            <option value="On-site">On-site</option>
+                                            <option value="Remote">Remote</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label>Job Type</label>
+                                        <select name="exp_type[]">
+                                            <option value="Full-Time">Full-Time</option>
+                                            <option value="Part-Time">Part-Time</option>
+                                            <option value="Contract">Contract</option>
+                                            <option value="Internship">Internship</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             
