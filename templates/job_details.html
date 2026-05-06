@@ -9,11 +9,11 @@
         </a>
     </div>
 
-    <div class="card" style="padding: 3rem; border-radius: 16px;">
+    <div class="card job-details-card">
         
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; margin-bottom: 2rem;">
+        <div class="job-header-flex">
             <div>
-                <h1 style="color: var(--text-main); font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 800; letter-spacing: -0.5px;">{{ job.job_title }}</h1>
+                <h1 class="job-detail-title">{{ job.job_title }}</h1>
                 <p style="color: var(--text-muted); font-size: 1.1rem;">
                     🏢 {{ job.department }} &nbsp; | &nbsp; 📍 {{ job.modality }} &nbsp; | &nbsp; ⏱️ {{ job.employment_type }}
                 </p>
@@ -22,8 +22,8 @@
                 </p>
             </div>
             
-            <div style="text-align: right;">
-                <a href="{{ url_for('apply_job', job_id=job._id) }}" class="btn btn-primary" style="padding: 1.2rem 2.5rem; font-size: 1.15rem; font-weight: 700; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); border-radius: 8px;">
+            <div class="job-apply-section">
+                <a href="{{ url_for('apply_job', job_id=job._id) }}" class="btn btn-primary job-apply-btn">
                     Apply for Job ➔
                 </a>
                 {% if job.deadline %}
@@ -34,31 +34,23 @@
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
-            
-            <div>
-                <h3 class="section-title" style="margin-top: 0; color: var(--text-main);">About the Role</h3>
-                
-                <div style="color: var(--text-muted); line-height: 1.8; font-size: 1.05rem; white-space: pre-wrap;">{{ job.job_description }}</div>
-            </div>
-
-            <div>
+         <div>
                 <div style="background-color: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
                     <h4 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;">Job Overview</h4>
                     <ul style="list-style: none; color: var(--text-muted); font-size: 0.95rem; line-height: 2.2; padding: 0;">
                         
-                        <li style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
-                            <strong>💰 Salary:</strong> <span>{{ job.salary_range }}</span>
+                        <li style="display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
+                            <strong>💰 Salary:</strong> <span style="text-align: right;">{{ job.salary_range }}</span>
                         </li>
-                        <li style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
-                            <strong>🎓 Education:</strong> <span>{{ job.min_education }}</span>
+                        <li style="display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
+                            <strong>🎓 Education:</strong> <span style="text-align: right;">{{ job.min_education }}</span>
                         </li>
-                        <li style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
-                            <strong>💼 Experience:</strong> <span>{{ job.min_experience_years }}+ Years</span>
+                        <li style="display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
+                            <strong>💼 Experience:</strong> <span style="text-align: right;">{{ job.min_experience_years }}+ Years</span>
                         </li>
-                        <li style="display: flex; justify-content: space-between;">
+                        <li style="display: flex; justify-content: space-between; gap: 1rem;">
                             <strong>📄 Research Paper:</strong> 
-                            <span class="{% if job.requires_research_paper == 'Yes' %}text-danger-bold{% endif %}">
+                            <span style="text-align: right;" class="{% if job.requires_research_paper == 'Yes' %}text-danger-bold{% endif %}">
                                 {{ job.requires_research_paper }}
                             </span>
                         </li>
@@ -67,7 +59,7 @@
                 </div>
 
                 <div style="background-color: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                    <h4 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;">Required AI Skills</h4>
+                    <h4 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;">Required Skills</h4>
                     
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Mandatory:</p>
                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
@@ -87,6 +79,15 @@
                     
                 </div>
             </div>
+
+        <div class="job-details-grid">
+            
+            <div>
+                <h3 class="section-title" style="margin-top: 0; color: var(--text-main);">About the Role</h3>
+                <div style="color: var(--text-muted); line-height: 1.8; font-size: 1.05rem; white-space: pre-wrap;">{{ job.job_description }}</div>
+            </div>
+
+           
             
         </div>
     </div>

@@ -237,16 +237,40 @@ body {
 /* ------------------------------------- */
 /* SIDEBAR & ADMIN LAYOUT                */
 /* ------------------------------------- */
-.admin-body {
-    margin: 0;
-    padding: 0;
-    background-color: var(--background-color);
+body.admin-body { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    overflow: auto !important; 
+    background-color: var(--background-color) !important; 
 }
 
-.admin-wrapper {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
+/* Modal and overlay fixes */
+.modal-backdrop, 
+.overlay, 
+[class*="overlay"], 
+[id*="overlay"], 
+.modal-open::before { 
+    display: none !important; 
+    opacity: 0 !important; 
+    pointer-events: none !important; 
+    z-index: -1 !important; 
+}
+
+body.admin-body::before, 
+body.admin-body::after { 
+    display: none !important; 
+}
+
+/* Main wrapper to prevent sidebar breaking */
+.admin-safe-wrapper,
+.admin-wrapper { 
+    display: flex !important; 
+    flex-direction: row !important; 
+    min-height: 100vh !important; 
+    width: 100% !important; 
+    position: relative !important; 
+    z-index: 999999 !important; 
+    background-color: var(--background-color) !important; 
 }
 
 .sidebar {
@@ -259,6 +283,8 @@ body {
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
 }
 
 .sidebar h2 {
@@ -292,6 +318,7 @@ body {
 .main-content {
     flex: 1;
     padding: 2rem 3rem;
+    z-index: 90;
 }
 
 .header {
@@ -617,71 +644,9 @@ body {
     display: block;
 }
 
-
-/* admin dashboard chart */
-/* ======================================================= */
-/* ADMIN DASHBOARD SPECIFIC STYLES                         */
-/* ======================================================= */
-
-body.admin-body { 
-    margin: 0 !important; 
-    padding: 0 !important; 
-    overflow: auto !important; 
-    background-color: #f3f4f6 !important; 
-}
-
-/* Modal and overlay fixes */
-.modal-backdrop, 
-.overlay, 
-[class*="overlay"], 
-[id*="overlay"], 
-.modal-open::before { 
-    display: none !important; 
-    opacity: 0 !important; 
-    pointer-events: none !important; 
-    z-index: -1 !important; 
-}
-
-body.admin-body::before, 
-body.admin-body::after { 
-    display: none !important; 
-}
-
-/* Main wrapper to prevent sidebar breaking */
-.admin-safe-wrapper { 
-    display: flex !important; 
-    flex-direction: row !important; 
-    min-height: 100vh !important; 
-    width: 100% !important; 
-    position: relative !important; 
-    z-index: 999999 !important; 
-    background-color: #f3f4f6 !important; 
-}
-
-.sidebar { 
-    width: 260px; 
-    background-color: white; 
-    border-right: 1px solid #e5e7eb; 
-    padding: 2rem 1.5rem; 
-    display: flex; 
-    flex-direction: column; 
-    position: sticky; 
-    top: 0; 
-    height: 100vh; 
-    overflow-y: auto; 
-    z-index: 100; 
-}
-
-.main-content { 
-    flex: 1; 
-    padding: 2rem 3rem; 
-    z-index: 90; 
-}
-
-/* ======================================================= */
-/* CHARTS & METRICS GRIDS                                  */
-/* ======================================================= */
-
+/* ------------------------------------- */
+/* CHARTS & METRICS GRIDS                */
+/* ------------------------------------- */
 .chart-grid { 
     display: grid; 
     grid-template-columns: 1fr 2fr; 
@@ -727,10 +692,9 @@ body.admin-body::after {
     color: var(--text-main); 
 }
 
-/* ======================================================= */
-/* SEARCH BAR UI                                           */
-/* ======================================================= */
-
+/* ------------------------------------- */
+/* SEARCH BAR UI                         */
+/* ------------------------------------- */
 .search-input { 
     width: 100%; 
     padding: 0.75rem 1.25rem; 
@@ -748,10 +712,9 @@ body.admin-body::after {
     background-color: white; 
 }
 
-
-/* ======================================================= */
-/* USER DROPDOWN MENU                                      */
-/* ======================================================= */
+/* ------------------------------------- */
+/* USER DROPDOWN MENU                    */
+/* ------------------------------------- */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -815,12 +778,59 @@ body.admin-body::after {
     animation: fadeIn 0.2s ease-in-out;
 }
 
+/* ------------------------------------- */
+/* JOB DETAILS PAGE STYLES               */
+/* ------------------------------------- */
+.job-details-card {
+    padding: 3rem; 
+    border-radius: 16px;
+}
+
+.job-header-flex {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+    gap: 1rem; 
+    border-bottom: 1px solid var(--border-color); 
+    padding-bottom: 2rem; 
+    margin-bottom: 2rem;
+}
+
+.job-detail-title {
+    color: var(--text-main); 
+    font-size: 2.5rem; 
+    margin-bottom: 0.5rem; 
+    font-weight: 800; 
+    letter-spacing: -0.5px;
+}
+
+.job-apply-section {
+    text-align: right;
+}
+
+.job-apply-btn {
+    padding: 1.2rem 2.5rem; 
+    font-size: 1.15rem; 
+    font-weight: 700; 
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); 
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.job-details-grid {
+    display: grid; 
+    grid-template-columns: 2fr 1fr; 
+    gap: 3rem;
+}
+
 /* ======================================================= */
 /* MOBILE & TABLET RESPONSIVENESS                          */
 /* ======================================================= */
 @media screen and (max-width: 768px) {
     /* Make the Admin Dashboard stack vertically */
-    .admin-safe-wrapper, .admin-wrapper {
+    .admin-safe-wrapper, 
+    .admin-wrapper {
         flex-direction: column !important;
     }
 
@@ -885,5 +895,34 @@ body.admin-body::after {
         flex-wrap: wrap;
         justify-content: center;
         gap: 1rem;
+    }
+
+    /* Job Details Specific Fixes */
+    .job-details-card {
+        padding: 1.5rem; /* Reduces massive white space on small screens */
+    }
+    
+    .job-header-flex {
+        flex-direction: column; /* Stacks title and apply button */
+        gap: 1.5rem;
+    }
+
+    .job-detail-title {
+        font-size: 1.8rem; /* Shrinks the massive header */
+    }
+
+    .job-apply-section {
+        text-align: left;
+        width: 100%;
+    }
+
+    .job-apply-btn {
+        width: 100%; /* Makes button full width for easy tapping */
+        text-align: center;
+    }
+
+    .job-details-grid {
+        grid-template-columns: 1fr; /* Forces the right-side box to stack under the description */
+        gap: 1.5rem;
     }
 }

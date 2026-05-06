@@ -107,17 +107,25 @@
 
             <div id="tab-analytics" class="tab-pane active">
                 <div class="metrics-grid">
-                    <div class="metric-card">
+                    <div class="metric-card" style="border-left-color: #3b82f6;">
                         <h3>Total Applications</h3>
-                        <p class="metric-number">{{ stats.total }}</p>
+                        <p class="metric-number" style="color: #3b82f6;">{{ stats.total }}</p>
                     </div>
-                    <div class="metric-card" style="border-left-color: var(--success);">
+                    
+                    <div class="metric-card" style="border-left-color: #f59e0b;">
                         <h3>Shortlisted</h3>
-                        <p class="metric-number" style="color: var(--success);">{{ stats.shortlisted }}</p>
+                        <p class="metric-number" style="color: #f59e0b;">{{ stats.shortlisted }}</p>
                     </div>
-                    <div class="metric-card" style="border-left-color: var(--warning);">
+                    
+                    <div class="metric-card" style="border-left-color: #8b5cf6;">
                         <h3>Interviewing</h3>
-                        <p class="metric-number" style="color: var(--warning);">{{ stats.interviewing }}</p>
+                        <p class="metric-number" style="color: #8b5cf6;">{{ stats.interviewing }}</p>
+                    </div>
+
+                    {% set hired_count = candidates | selectattr('status', 'equalto', 'Hired') | list | length %}
+                    <div class="metric-card" style="border-left-color: #10b981;">
+                        <h3>Successfully Hired</h3>
+                        <p class="metric-number" style="color: #10b981;">{{ hired_count }}</p>
                     </div>
                 </div>
 
@@ -339,7 +347,13 @@
         const jobLabels = {{ stats.job_labels | tojson | safe }};
         const jobValues = {{ stats.job_values | tojson | safe }};
 
-        const themeColors = { 'Applied': '#94a3b8', 'Shortlisted': '#10b981', 'Interviewing': '#f59e0b','Hired': '#065f46', 'Rejected': '#ef4444' };
+        const themeColors = { 
+            'Applied': '#3b82f6',       // Blue
+            'Shortlisted': '#f59e0b',   // Yellow
+            'Interviewing': '#8b5cf6',  // Purple
+            'Hired': '#10b981',         // Green
+            'Rejected': '#ef4444'       // Red
+        };
         const pieColors = statusLabels.map(label => themeColors[label] || '#3b82f6');
 
         new Chart(document.getElementById('statusPieChart').getContext('2d'), {
