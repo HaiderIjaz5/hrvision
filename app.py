@@ -676,16 +676,29 @@ def delete_candidate(candidate_id):
 # ==========================================
 @app.route('/jobs')
 def job_board():
-    open_jobs = list(jobs_collection.find({"status": "Open"}).sort("created_at", -1))
+    # 1. Fetch all jobs that are manually set to "Open"
+    all_open_jobs = list(jobs_collection.find({"status": "Open"}).sort("created_at", -1))
     
-    # Pass a list of saved jobs to the frontend so the bookmark buttons light up!
+    # 2. Get today's date in the exact same format HTML saves it (YYYY-MM-DD)
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    valid_jobs = []
+    
+    # 3. Loop through and filter out the expired ones
+    for job in all_open_jobs:
+        deadline = job.get('deadline', '')
+        # If there is no deadline, OR the deadline is today or in the future, keep it!
+        if not deadline or deadline >= today_str:
+            valid_jobs.append(job)
+
+    # 4. Handle the saved/bookmarked jobs logic
     saved_job_ids = []
     if session.get('role') == 'candidate':
         profile = profiles_collection.find_one({"user_id": session['user_id']})
         if profile:
             saved_job_ids = profile.get('saved_jobs', [])
             
-    return render_template('job_board.html', jobs=open_jobs, saved_job_ids=saved_job_ids)
+    # 5. Send ONLY the valid_jobs to the website
+    return render_template('job_board.html', jobs=valid_jobs, saved_job_ids=saved_job_ids)
 
 @app.route('/job_details/<job_id>')
 def job_details(job_id):
@@ -693,11 +706,23 @@ def job_details(job_id):
         job = jobs_collection.find_one({"_id": ObjectId(job_id)})
         if not job:
             flash("Job not found or has been removed.")
-            return redirect(url_for('job_board'))
+            # request.referrer bounces them back to the exact page they came from
+            return redirect(request.referrer or url_for('job_board'))
+            
+        # --- NEW: SECURITY DEADLINE CHECK ---
+        deadline = job.get('deadline', '')
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        
+        if deadline and deadline < today_str:
+            flash("Sorry, the deadline to apply for this position has passed.", "flash-error")
+            # Bounces them back to their dashboard (or wherever they clicked from)
+            return redirect(request.referrer or url_for('job_board'))
+        # ------------------------------------
+            
         return render_template('job_details.html', job=job)
     except Exception:
         flash("Invalid Job ID.")
-        return redirect(url_for('job_board'))
+        return redirect(request.referrer or url_for('job_board'))
 
 @app.route('/candidate/dashboard')
 def candidate_dashboard():
@@ -787,7 +812,17 @@ def apply_job(job_id):
 
     job = jobs_collection.find_one({"_id": ObjectId(job_id)})
     if not job:
-        return "Job not found", 404
+        flash("Job not found or has been removed.")
+        return redirect(url_for('job_board'))
+        
+    # --- NEW: SECURITY DEADLINE CHECK ---
+    deadline = job.get('deadline', '')
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    
+    if deadline and deadline < today_str:
+        flash("Sorry, the deadline to apply for this position has passed.", "flash-error")
+        return redirect(url_for('job_board'))
+    # ------------------------------------
         
     existing_profile = profiles_collection.find_one({"user_id": session['user_id']})
     if not existing_profile:

@@ -1,7 +1,22 @@
 {% extends "public_base.html" %}
 
 {% block content %}
-<div style="max-width: 1000px; margin: 4rem auto; padding: 0 1.5rem;">
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <!-- Notice we are now unpacking both category and message -->
+        {% for category, message in messages %}
+            
+            <!-- We check if the category is 'flash-error' OR if the text contains your other errors -->
+            {% if category == 'flash-error' or "blocked" in message.lower() or "do not match" in message.lower() %}
+                <div class="flash-error">🚨 {{ message }}</div>
+            {% else %}
+                <div class="flash-success">✅ {{ message }}</div>
+            {% endif %}
+            
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<div style="max-width: 1000px; margin: 2rem auto 4rem auto; padding: 0 1.5rem;">
     <div style="text-align: center; margin-bottom: 3rem;">
         <h1 style="font-size: 2.5rem; color: var(--text-main); margin-bottom: 1rem;">Join Our Team</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem;">Explore open roles and let our AI match you to your perfect career.</p>
@@ -101,7 +116,6 @@
 
 <script>
     function filterJobs() {
-        // 1. Get the current value of all 4 filters
         const searchQuery = document.getElementById('jobSearch').value.toLowerCase();
         const deptFilter = document.getElementById('filterDept').value;
         const locFilter = document.getElementById('filterLocation').value;
@@ -111,19 +125,16 @@
         let visibleCount = 0;
 
         jobCards.forEach(card => {
-            // 2. Get the data from the specific card
             const cardText = card.innerText.toLowerCase();
             const cardDept = card.getAttribute('data-dept');
             const cardLoc = card.getAttribute('data-location');
             const cardMod = card.getAttribute('data-modality');
 
-            // 3. Check if the card matches the filters (an empty filter "" matches everything)
             const matchesText = cardText.includes(searchQuery);
             const matchesDept = deptFilter === "" || cardDept === deptFilter;
             const matchesLoc = locFilter === "" || cardLoc === locFilter;
             const matchesMod = modFilter === "" || cardMod === modFilter;
 
-            // 4. Show card only if it matches ALL active filters
             if (matchesText && matchesDept && matchesLoc && matchesMod) {
                 card.style.display = '';
                 visibleCount++;
@@ -132,7 +143,6 @@
             }
         });
 
-        // 5. Handle the "No Jobs Found" message
         const noJobsMessage = document.getElementById('noJobsMessage');
         if (noJobsMessage) {
             if (visibleCount === 0 && jobCards.length > 0) {
@@ -143,7 +153,6 @@
         }
     }
 
-    // Attach the filter function to run whenever the user types or changes a dropdown
     document.getElementById('jobSearch')?.addEventListener('input', filterJobs);
     document.getElementById('filterDept')?.addEventListener('change', filterJobs);
     document.getElementById('filterLocation')?.addEventListener('change', filterJobs);
