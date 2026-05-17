@@ -285,7 +285,7 @@ def login():
         else:
             is_admin = users_collection.find_one({"email": email, "role": "admin"})
             if is_admin:
-                flash("Administrators must use the secure Admin Portal to log in.", "error")
+                flash("Incorrect email or password.", "error")
             else:
                 # Changed to "Incorrect" so your HTML smart-block catches it as a red error!
                 flash("Incorrect email or password.", "error")
@@ -522,20 +522,69 @@ def export_csv():
 
 @app.route('/admin/create_hr', methods=['GET', 'POST'])
 def create_hr():
+    # Security Check: Only the Super Admin can access this page
     if session.get('role') != 'admin' or session.get('email') != 'admin@hrvision.com':
         return redirect(url_for('admin_dashboard'))
+        
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        if users_collection.find_one({"email": email}):
-            return "Email already in use."
-        users_collection.insert_one({
-            "name": name, "email": email, "password": generate_password_hash(password),
-            "role": "admin", "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        })
-        return redirect(url_for('admin_dashboard'))
-    return render_template('admin_create_hr.html')
+        action = request.form.get('action', 'create')
+        
+        # --- ACTION: CREATE NEW HR ---
+        if action == 'create':
+            name = request.form.get('name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            
+            if users_collection.find_one({"email": email}):
+                flash("🚨 Error: That email is already in use by another account.", "error")
+            else:
+                users_collection.insert_one({
+                    "name": name, 
+                    "email": email, 
+                    "password": generate_password_hash(password),
+                    "role": "admin", 
+                    "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+                flash(f"✅ HR Manager '{name}' created successfully!")
+                
+        # --- ACTION: EDIT EXISTING HR ---
+        elif action == 'edit':
+            hr_id = request.form.get('hr_id')
+            name = request.form.get('name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            
+            update_data = {"name": name, "email": email}
+            
+            # Only update the password if the Super Admin typed a new one
+            if password and password.strip() != "":
+                update_data["password"] = generate_password_hash(password)
+                
+            # Prevent them from changing the email to one that already exists
+            if users_collection.find_one({"email": email, "_id": {"$ne": ObjectId(hr_id)}}):
+                flash("🚨 Error: That email is already in use by another account.", "error")
+            else:
+                users_collection.update_one({"_id": ObjectId(hr_id)}, {"$set": update_data})
+                flash(f"✅ HR Manager '{name}' updated successfully!")
+                
+        # --- ACTION: DELETE HR ---
+        elif action == 'delete':
+            hr_id = request.form.get('hr_id')
+            hr_user = users_collection.find_one({"_id": ObjectId(hr_id)})
+            
+            # Failsafe: Prevent the Super Admin from accidentally deleting themselves!
+            if hr_user and hr_user.get('email') == 'admin@hrvision.com':
+                flash("🚨 Error: You cannot delete the Super Admin account.", "error")
+            else:
+                users_collection.delete_one({"_id": ObjectId(hr_id)})
+                flash("✅ HR Manager deleted successfully!")
+                
+        # Refresh the page to show changes
+        return redirect(url_for('create_hr'))
+
+    # GET Request: Fetch all HR managers to display in the data table
+    hr_managers = list(users_collection.find({"role": "admin"}))
+    return render_template('admin_create_hr.html', hr_managers=hr_managers)
 
 @app.route('/admin/post_job')
 def post_job_form():

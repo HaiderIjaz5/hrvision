@@ -3,97 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add HR Admin</title>
+    <title>Manage HR Team | HRVision</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    </head>
+</head>
 <body class="admin-body">
     <div class="admin-safe-wrapper">
 
         <aside class="sidebar">
             <h2>HRVision AI</h2>
             <ul class="nav-links">
-                <li><a href="/admin/dashboard">Dashboard</a></li>
-                <li><a href="/admin/post_job">Post a Job</a></li>
-                <li><a href="/admin/jobs">Manage Jobs</a></li>
+                <li><a href="/admin/dashboard">Dashboard Overview</a></li>
+                <li><a href="/admin/post_job">Post a New Job</a></li>
+                <li><a href="/admin/jobs">Manage Postings</a></li>
                 
                 {% if session.get('email') == 'admin@hrvision.com' %}
-                    <li><a href="/admin/create_hr" class="active">+ Add HR Admin</a></li>
+                    <li><a href="/admin/create_hr" class="active" style="background-color: #eff6ff; color: var(--primary-color);">Manage HR Team</a></li>
                 {% endif %}
                 
-                <li><a href="/jobs" target="_blank">View Live Job Board ➔</a></li>
+                <li><a href="/jobs" target="_blank">Live Job Board ➔</a></li>
             </ul>
             <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Logged in as: <br><strong style="color: var(--text-main);">{{ session['user_name'] }}</strong></p>
-                {% if session.get('email') == 'admin@hrvision.com' %}
-                    <span class="badge" style="background-color: #fef08a; color: #854d0e; font-size: 0.7rem; margin-bottom: 1rem;">Super Admin</span>
-                {% else %}
-                    <span class="badge" style="background-color: #e2e8f0; color: #475569; font-size: 0.7rem; margin-bottom: 1rem;">HR Manager</span>
-                {% endif %}
+                <span class="badge" style="background-color: #fef08a; color: #854d0e; font-size: 0.7rem; margin-bottom: 1rem;">Super Admin</span>
                 <a href="/logout" class="btn btn-secondary btn-sm" style="width: 100%;">Logout</a>
             </div>
         </aside>
 
         <main class="main-content">
-            <header class="header" style="max-width: 600px; margin: 0 auto 2rem auto;">
-                <h1>Invite New HR Administrator</h1>
-                <p>Create credentials for your team members to manage their own job postings.</p>
+            <header class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="margin-bottom: 0.5rem;">Manage HR Team</h1>
+                    <p style="color: var(--text-muted);">Create, edit, and remove HR Administrator accounts.</p>
+                </div>
+                <button onclick="openAddModal()" class="btn btn-primary" style="padding: 0.8rem 1.5rem; font-size: 1.05rem;">
+                    + Add New HR Manager
+                </button>
             </header>
 
-            <div style="max-width: 600px; margin: 0 auto;">
+            <div style="max-width: 100%; margin-bottom: 1.5rem;">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
-                            {% if category == 'error' or 'already' in message.lower() %}
-                                <div class="flash-error">🚨 {{ message }}</div>
+                            {% if category == 'error' or 'error' in message.lower() %}
+                                <div class="flash-error" style="margin-bottom: 0;">{{ message }}</div>
                             {% else %}
-                                <div class="flash-success">✅ {{ message }}</div>
+                                <div class="flash-success" style="margin-bottom: 0;">{{ message }}</div>
                             {% endif %}
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
             </div>
 
-            <div class="card" style="max-width: 600px; margin: 0 auto; width: 100%;">
-                <form action="/admin/create_hr" method="POST" class="profile-form">
-                    
-                    <div class="form-group">
-                        <label>Admin Full Name</label>
-                        <input type="text" name="name" required placeholder="Jane Smith">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Admin Corporate Email</label>
-                        <input type="email" name="email" required placeholder="jane@company.com">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Temporary Password</label>
-                        <div style="position: relative; display: flex; align-items: center;">
-                            <input type="password" name="password" id="createHrPassword" required placeholder="••••••••" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%; padding-right: 2.5rem;">
-                            <button type="button" onclick="togglePassword('createHrPassword', 'createHrEye')" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; padding: 0;">
-                                <svg id="createHrEye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;">Create Admin Account</button>
-                </form>
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Manager Name</th>
+                            <th>Corporate Email</th>
+                            <th>System Role</th>
+                            <th>Account Created</th>
+                            <th>Take Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hr in hr_managers %}
+                        <tr>
+                            <td style="vertical-align: middle;"><strong>{{ hr.name }}</strong></td>
+                            <td style="vertical-align: middle;">{{ hr.email }}</td>
+                            <td style="vertical-align: middle;">
+                                {% if hr.email == 'admin@hrvision.com' %}
+                                    <span class="badge" style="background-color: #fef08a; color: #854d0e;">Super Admin</span>
+                                {% else %}
+                                    <span class="badge" style="background-color: #e2e8f0; color: #475569;">HR Manager</span>
+                                {% endif %}
+                            </td>
+                            <td style="vertical-align: middle; color: var(--text-muted);">{{ hr.created_at | default('Unknown') }}</td>
+                            <td style="vertical-align: middle;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="openEditModal('{{ hr._id }}', '{{ hr.name | replace('\'', '\\\'') }}', '{{ hr.email | replace('\'', '\\\'') }}')">
+                                        ✏️ Edit
+                                    </button>
+                                    
+                                    {% if hr.email != 'admin@hrvision.com' %}
+                                    <form action="/admin/create_hr" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this HR Manager?');" style="margin: 0;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="hr_id" value="{{ hr._id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                                    </form>
+                                    {% endif %}
+                                    
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if hr_managers|length == 0 %}
+                    <p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">No HR Managers found.</p>
+                {% endif %}
             </div>
         </main>
-        
+    </div>
+
+    <div id="addHrModal" class="profile-popup-bg" style="display: none; z-index: 99999999;">
+        <div class="profile-popup-content" style="width: 90%; max-width: 500px; padding: 2.5rem;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--text-main); margin: 0;">Add HR Manager</h2>
+                <button type="button" onclick="closeAddModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            </div>
+            
+            <form action="/admin/create_hr" method="POST" class="profile-form">
+                <input type="hidden" name="action" value="create">
+                
+                <div class="form-group">
+                    <label>Manager Full Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Jane Smith">
+                </div>
+                
+                <div class="form-group">
+                    <label>Corporate Email</label>
+                    <input type="email" name="email" required placeholder="jane@hrvision.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Temporary Password</label>
+                    <input type="password" name="password" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.8rem; font-size: 1.05rem;">
+                    Create Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editHrModal" class="profile-popup-bg" style="display: none; z-index: 99999999;">
+        <div class="profile-popup-content" style="width: 90%; max-width: 500px; padding: 2.5rem;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--text-main); margin: 0;">Edit HR Manager</h2>
+                <button type="button" onclick="closeEditModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            </div>
+            
+            <form action="/admin/create_hr" method="POST" class="profile-form">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="hr_id" id="edit_hr_id">
+                
+                <div class="form-group">
+                    <label>Manager Full Name</label>
+                    <input type="text" name="name" id="edit_hr_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Corporate Email</label>
+                    <input type="email" name="email" id="edit_hr_email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Reset Password <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85rem;">(Leave blank to keep current)</span></label>
+                    <input type="password" name="password" placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.8rem; font-size: 1.05rem;">
+                    Save Changes
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>
-        function togglePassword(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
-            } else {
-                input.type = 'password';
-                icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
-            }
+        function openAddModal() {
+            document.getElementById('addHrModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Stops background from scrolling
+        }
+        function closeAddModal() {
+            document.getElementById('addHrModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        function openEditModal(id, name, email) {
+            // Fill the hidden and visible inputs with the selected HR's data!
+            document.getElementById('edit_hr_id').value = id;
+            document.getElementById('edit_hr_name').value = name;
+            document.getElementById('edit_hr_email').value = email;
+            
+            document.getElementById('editHrModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeEditModal() {
+            document.getElementById('editHrModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
     </script>
 </body>
