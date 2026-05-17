@@ -347,8 +347,12 @@ def logout():
     user_role = session.get('role')
     session.clear()
     previous_page = request.referrer
+    
     if user_role == 'admin':
         flash("You have securely logged out of the Admin Portal.")
+    elif user_role == 'candidate':
+        flash("You have successfully logged out of your account.")
+        
     if previous_page:
         return redirect(previous_page)
     return redirect(url_for('index'))
@@ -880,6 +884,16 @@ def submit_profile():
         resume_filename = save_dynamic_file(resume_file) or request.form.get('existing_resume', '')
         pic_filename = save_dynamic_file(profile_pic_file) or request.form.get('existing_profile_pic', '')
 
+        # --- NEW: PROCESS IDENTITY DOCUMENTS ---
+        cnic_front_file = request.files.get('cnic_front')
+        cnic_back_file = request.files.get('cnic_back')
+        domicile_file = request.files.get('domicile')
+
+        cnic_front_filename = save_dynamic_file(cnic_front_file) or request.form.get('existing_cnic_front', '')
+        cnic_back_filename = save_dynamic_file(cnic_back_file) or request.form.get('existing_cnic_back', '')
+        domicile_filename = save_dynamic_file(domicile_file) or request.form.get('existing_domicile', '')
+        # ---------------------------------------
+
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         dob = request.form.get('dob')
@@ -1028,8 +1042,15 @@ def submit_profile():
         master_profile_data = {
             "user_id": session['user_id'],
             "personal_info": {
-                "first_name": first_name, "last_name": last_name, "dob": dob,
-                "gender": gender, "nationality": nationality, "profile_pic": pic_filename
+                "first_name": first_name, 
+                "last_name": last_name, 
+                "dob": dob,
+                "gender": gender, 
+                "nationality": nationality, 
+                "profile_pic": pic_filename,
+                "cnic_front": cnic_front_filename,  # <-- NEW
+                "cnic_back": cnic_back_filename,    # <-- NEW
+                "domicile": domicile_filename       # <-- NEW
             },
             "contact_info": {
                 "email": email, "phone": phone,

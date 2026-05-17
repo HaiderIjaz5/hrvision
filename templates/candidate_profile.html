@@ -79,6 +79,46 @@
                 </div>
 
                 <hr class="divider">
+                <h3 class="section-title">Identity Documents</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Upload clear images or PDFs of your identity documents.</p>
+                
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="cnic_front">CNIC Front Image (JPG/PNG/PDF)</label>
+                        {% if profile and profile.personal_info and profile.personal_info.cnic_front %}
+                            <small style="color: var(--success); margin-top: 0.25rem;">✅ Uploaded: {{ profile.personal_info.cnic_front }}</small>
+                            <input type="hidden" name="existing_cnic_front" value="{{ profile.personal_info.cnic_front }}">
+                            <input type="file" id="cnic_front" name="cnic_front" accept=".jpg,.jpeg,.png,.pdf">
+                        {% else %}
+                            <input type="file" id="cnic_front" name="cnic_front" accept=".jpg,.jpeg,.png,.pdf" required>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group half-width">
+                        <label for="cnic_back">CNIC Back Image (JPG/PNG/PDF)</label>
+                        {% if profile and profile.personal_info and profile.personal_info.cnic_back %}
+                            <small style="color: var(--success); margin-top: 0.25rem;">✅ Uploaded: {{ profile.personal_info.cnic_back }}</small>
+                            <input type="hidden" name="existing_cnic_back" value="{{ profile.personal_info.cnic_back }}">
+                            <input type="file" id="cnic_back" name="cnic_back" accept=".jpg,.jpeg,.png,.pdf">
+                        {% else %}
+                            <input type="file" id="cnic_back" name="cnic_back" accept=".jpg,.jpeg,.png,.pdf" required>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="domicile">Domicile Document (JPG/PNG/PDF)</label>
+                        {% if profile and profile.personal_info and profile.personal_info.domicile %}
+                            <small style="color: var(--success); margin-top: 0.25rem;">✅ Uploaded: {{ profile.personal_info.domicile }}</small>
+                            <input type="hidden" name="existing_domicile" value="{{ profile.personal_info.domicile }}">
+                            <input type="file" id="domicile" name="domicile" accept=".jpg,.jpeg,.png,.pdf">
+                        {% else %}
+                            <input type="file" id="domicile" name="domicile" accept=".jpg,.jpeg,.png,.pdf" required>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr class="divider">
 
                 <h3 class="section-title">Contact & Address</h3>
                 <div class="form-row">

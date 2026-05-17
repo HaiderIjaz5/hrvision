@@ -1,21 +1,7 @@
 {% extends "public_base.html" %}
 
 {% block content %}
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <!-- Notice we are now unpacking both category and message -->
-        {% for category, message in messages %}
-            
-            <!-- We check if the category is 'flash-error' OR if the text contains your other errors -->
-            {% if category == 'flash-error' or "blocked" in message.lower() or "do not match" in message.lower() %}
-                <div class="flash-error">🚨 {{ message }}</div>
-            {% else %}
-                <div class="flash-success">✅ {{ message }}</div>
-            {% endif %}
-            
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+
 <div style="max-width: 1000px; margin: 2rem auto 4rem auto; padding: 0 1.5rem;">
     <div style="text-align: center; margin-bottom: 3rem;">
         <h1 style="font-size: 2.5rem; color: var(--text-main); margin-bottom: 1rem;">Join Our Team</h1>
