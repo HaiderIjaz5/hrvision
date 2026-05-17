@@ -12,25 +12,35 @@
 <body class="public-layout">
 
     <nav class="public-header">
-        <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem;">
-            
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HRVision Logo" style="height: 32px; width: auto;">
-            
-            <a href="/" class="header-logo">HRVision</a>
-            
-            <ul class="header-nav-links" style="margin-left: 1rem;">
-                <li><a href="/">Home</a></li>
-                <li><a href="/jobs">Browse Jobs</a></li>
-                <li><a href="/about">About Us</a></li>
-                <li><a href="/contact">Contact Us</a></li>
-            </ul>
+        
+        <div class="header-mobile-toggle">
+            <button class="hamburger-menu" onclick="toggleMobileNav()">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
         </div>
+
+        <a href="/" class="header-logo-group">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HRVision Logo" style="height: 32px; width: auto;">
+            <span class="header-logo">HRVision</span>
+        </a>
+        
+        <ul class="header-nav-links" id="mobileNav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/jobs">Browse Jobs</a></li>
+            <li><a href="/about">About Us</a></li>
+            <li><a href="/contact">Contact Us</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
+        </ul>
         
         <div class="header-right">
             
             {% if session.get('role') == 'admin' %}
-                <a href="/admin/dashboard" class="btn btn-primary btn-sm">Admin Dashboard</a>
-                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+                <a href="/admin/dashboard" class="btn btn-primary btn-sm"><span class="hide-on-mobile">Admin </span>Dashboard</a>
+                <a href="/logout" class="btn btn-secondary btn-sm hide-on-mobile">Logout</a>
             
             {% elif session.get('role') == 'candidate' %}
                 <div class="dropdown">
@@ -47,15 +57,28 @@
                 </div>
             
             {% else %}
-                
                 <a href="{{ url_for('login', next=request.path) }}" class="user-profile-btn" style="background-color: var(--primary-color); color: white; border-color: var(--primary-color);">
-                    Login / Sign Up
+                    Login<span class="hide-on-mobile"> / Sign Up</span>
                 </a>
             {% endif %}
 
         </div>
     </nav>
-
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="max-width: 800px; margin: 2rem auto 0 auto; padding: 0 1.5rem;">
+                {% for category, message in messages %}
+                    {% if category == 'error' or 'flash-error' in category or "blocked" in message.lower() or "match" in message.lower() or "incorrect" in message.lower() %}
+                        <div class="flash-error">🚨 {{ message }}</div>
+                    {% else %}
+                        <div class="flash-success">✅ {{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <main class="public-main">
         {% block content %}
         {% endblock %}
@@ -79,12 +102,17 @@
                 <h4>Legal</h4>
                 <ul>
                     <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/about">Terms of Service</a></li>
+                    <li><a href="/about">About Us</a></li>
                 </ul>
             </div>
         </div>
         <p class="footer-copyright">&copy; 2026 HRVision AI. All rights reserved.</p>
     </footer>
 
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('mobileNav').classList.toggle('nav-active');
+        }
+    </script>
 </body>
 </html>

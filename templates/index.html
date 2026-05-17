@@ -1,38 +1,50 @@
 {% extends "public_base.html" %}
 
 {% block content %}
-<div style="background-color: white; padding: 5rem 2rem; text-align: center; border-bottom: 1px solid var(--border-color);">
-    <h1 style="font-size: 3.5rem; color: var(--text-main); margin-bottom: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
-        Hire Smarter, Not Harder.
-    </h1>
-    <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2.5rem auto; line-height: 1.6;">
-        HRVision uses cutting-edge Natural Language Processing to automatically screen, rank, and shortlist the perfect candidates for your team.
-    </p>
-    <div style="display: flex; gap: 1rem; justify-content: center;">
-        <a href="/jobs" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Find a Job</a>
-        <a href="/admin/login" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2rem;">HR Login</a>
+<div class="hero" style="text-align: center; padding: 5rem 1rem; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border-bottom: 1px solid var(--border-color);">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="font-size: 3rem; color: var(--text-main); margin-bottom: 1.5rem; font-weight: 800; letter-spacing: -1px;">
+            The Intelligent Job Portal for<br> <span style="color: var(--primary-color);">Next-Gen Hiring</span>
+        </h1>
+        <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2.5rem; line-height: 1.6;">
+            HRVision bridges the gap between top talent and leading companies. Candidates apply seamlessly with a single Master Profile, while our Deep Learning AI automatically screens, ranks, and shortlists the perfect matches for HR.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="/jobs" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Browse Live Jobs</a>
+            <a href="/admin/login" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.1rem; background-color: #e2e8f0;">HR Portal Login</a>
+        </div>
     </div>
 </div>
 
-<div style="max-width: 1000px; margin: 4rem auto; padding: 0 2rem;">
-    <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2rem;">Why HRVision?</h2>
+<div class="container" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <h2 style="text-align: center; font-size: 2rem; margin-bottom: 3rem; color: var(--text-main);">Why Choose HRVision?</h2>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-        <div class="card" style="text-align: center; padding: 2rem;">
-            <h3 style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem;">🤖</h3>
-            <h4>AI-Powered Screening</h4>
-            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem;">Our advanced NLP model calculates a semantic similarity score to instantly surface the best resumes.</p>
+        
+        <div class="card" style="text-align: center; padding: 2.5rem; border-top: 4px solid var(--primary-color); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">AI-Powered Ranking</h3>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">
+                Our advanced Natural Language Processing model instantly calculates semantic match scores, ensuring recruiters find the most qualified candidates without hours of manual screening.
+            </p>
         </div>
-        <div class="card" style="text-align: center; padding: 2rem;">
-            <h3 style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem;">🛡️</h3>
-            <h4>Secure Multi-Tenancy</h4>
-            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem;">Role-based access control ensures HR managers only see the candidates meant for their specific departments.</p>
+
+        <div class="card" style="text-align: center; padding: 2.5rem; border-top: 4px solid var(--success); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">Smart Master Profiles</h3>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">
+                Candidates build a comprehensive digital profile once—including documents, skills, and experience—and can apply to multiple jobs across the portal with a single click.
+            </p>
         </div>
-        <div class="card" style="text-align: center; padding: 2rem;">
-            <h3 style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem;">⚡</h3>
-            <h4>Frictionless Application</h4>
-            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem;">A clean, interactive 5-step wizard makes it incredibly easy for top talent to submit structured data.</p>
+
+        <div class="card" style="text-align: center; padding: 2.5rem; border-top: 4px solid var(--warning); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">End-to-End HR Dashboard</h3>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">
+                A complete ecosystem for HR managers. Post jobs, review ranked candidates, securely view applicant documents in-app, and schedule interviews all from one centralized hub.
+            </p>
         </div>
+
     </div>
 </div>
 {% endblock %}

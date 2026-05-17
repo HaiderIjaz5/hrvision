@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
 </head>
 <body class="admin-body">
 
@@ -57,6 +59,32 @@
             <div style="display:flex; gap:1rem;">
                 <button onclick="closeInterviewModal()" class="btn btn-secondary" style="flex:1;">Cancel</button>
                 <button onclick="submitInterviewDetails()" class="btn btn-primary" style="flex:1; background-color: var(--success); border-color: var(--success);">Send Invite Email</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="documentModal" class="profile-popup-bg" style="display: none; z-index: 99999999;">
+        <div class="profile-popup-content" style="height: 90vh; width: 90vw; max-width: 1000px; display: flex; flex-direction: column; padding: 2rem;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 id="docModalTitle" style="margin: 0; color: var(--primary-color);">Document Viewer</h2>
+                <button onclick="closeDocumentModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            </div>
+            
+            <iframe id="documentIframe" src="" style="width: 100%; flex: 1; border: 2px solid var(--border-color); border-radius: 8px; background-color: #f1f5f9; display: none;"></iframe>
+            
+            <div id="imageViewerContainer" style="width: 100%; flex: 1; border: 2px solid var(--border-color); border-radius: 8px; background-color: #f8fafc; display: none; padding: 1rem; align-items: center; justify-content: center; overflow: hidden;">
+                <img id="documentImage" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px;" alt="Document">
+            </div>
+
+            <div id="docxViewerContainer" style="width: 100%; flex: 1; border: 2px solid var(--border-color); border-radius: 8px; background-color: #ffffff; display: none; padding: 2rem; overflow-y: auto; color: var(--text-main); font-family: Arial, sans-serif; line-height: 1.6;">
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <p style="font-size: 0.9rem; color: var(--text-muted);">
+                    Want to see the original formatting? 
+                    <a id="docFallbackLink" href="" target="_blank" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">Click here to download the file directly</a>.
+                </p>
             </div>
         </div>
     </div>
@@ -158,6 +186,7 @@
                         <thead>
                             <tr>
                                 <th>Candidate Info</th>
+                                <th>Full Profile</th>
                                 <th>Education Detail</th>
                                 <th>Experience Summary</th>
                                 <th>Documents</th>
@@ -178,6 +207,10 @@
                                     <span style="display: none;" class="hidden-skills">{{ candidate.skills | join(' ') }}</span>
                                 </td>
                                 
+                                <td style="min-width: 130px; vertical-align: middle;">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="openProfilePopup('{{ candidate._id }}')" style="width: 100%; white-space: nowrap;">Complete Profile</button>
+                                </td>
+
                                 <td style="min-width: 160px;">
                                     <ul style="list-style: none; padding: 0; font-size: 0.85rem;">
                                     {% for edu in candidate.education %}
@@ -199,14 +232,26 @@
                                     <div class="doc-badge-container" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
                                         
                                         {% if candidate.resume_filename %}
-                                        <a href="{{ url_for('uploaded_file', filename=candidate.resume_filename) }}" target="_blank" class="doc-badge doc-resume" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.resume_filename) }}', 'Resume - {{ candidate.personal_info.first_name }}')" class="doc-badge doc-resume" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">
                                             📄 Resume
                                         </a>
                                         {% endif %}
 
+                                        {% if candidate.personal_info.cnic_front %}
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.cnic_front) }}', 'CNIC Front')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">💳 CNIC Front</a>
+                                        {% endif %}
+                                        
+                                        {% if candidate.personal_info.cnic_back %}
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.cnic_back) }}', 'CNIC Back')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">💳 CNIC Back</a>
+                                        {% endif %}
+                                        
+                                        {% if candidate.personal_info.domicile %}
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.domicile) }}', 'Domicile Document')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">🏠 Domicile</a>
+                                        {% endif %}
+
                                         {% for edu in candidate.education %}
                                             {% if edu.document %}
-                                            <a href="{{ url_for('uploaded_file', filename=edu.document) }}" target="_blank" class="doc-badge" style="background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ edu.degree_name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=edu.document) }}', 'Degree - {{ edu.degree_name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ edu.degree_name }}">
                                                 🎓 {{ edu.degree_name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
@@ -214,7 +259,7 @@
 
                                         {% for exp in candidate.experience %}
                                             {% if exp.document %}
-                                            <a href="{{ url_for('uploaded_file', filename=exp.document) }}" target="_blank" class="doc-badge" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ exp.company_name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=exp.document) }}', 'Experience - {{ exp.company_name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ exp.company_name }}">
                                                 💼 {{ exp.company_name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
@@ -222,7 +267,7 @@
 
                                         {% for cert in candidate.certifications %}
                                             {% if cert.document %}
-                                            <a href="{{ url_for('uploaded_file', filename=cert.document) }}" target="_blank" class="doc-badge" style="background-color: #faf5ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ cert.name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=cert.document) }}', 'Certificate - {{ cert.name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #faf5ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ cert.name }}">
                                                 📜 {{ cert.name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
@@ -230,13 +275,13 @@
 
                                         {% for rec in candidate.recommendations %}
                                             {% if rec.document %}
-                                            <a href="{{ url_for('uploaded_file', filename=rec.document) }}" target="_blank" class="doc-badge" style="background-color: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ rec.name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=rec.document) }}', 'Recommendation - {{ rec.name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ rec.name }}">
                                                 🤝 {{ rec.name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
                                         {% endfor %}
 
-                                        {% if not candidate.resume_filename and not (candidate.education|selectattr('document')|list) and not (candidate.experience|selectattr('document')|list) and not (candidate.certifications|selectattr('document')|list) and not (candidate.recommendations|selectattr('document')|list) %}
+                                        {% if not candidate.resume_filename and not (candidate.education|selectattr('document')|list) and not (candidate.experience|selectattr('document')|list) and not (candidate.certifications|selectattr('document')|list) and not (candidate.recommendations|selectattr('document')|list) and not candidate.personal_info.cnic_front and not candidate.personal_info.domicile %}
                                             <span style="color: var(--text-muted); font-size: 0.75rem;">No Documents</span>
                                         {% endif %}
                                         
@@ -289,7 +334,248 @@
         </main>
     </div> 
 
+    {% for c in candidates %}
+    <div id="popup-{{ c._id }}" class="profile-popup-bg" style="display: none;">
+        <div class="profile-popup-content">
+            
+            <button class="popup-close-btn" onclick="closeProfilePopup('{{ c._id }}')">✕</button>
+            
+            <div class="popup-header-row">
+                <div class="popup-left-info">
+                    <h2>{{ c.personal_info.first_name }} {{ c.personal_info.last_name }}</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">
+                        <strong>DOB:</strong> {{ c.personal_info.dob }} &nbsp;|&nbsp; 
+                        <strong>Gender:</strong> {{ c.personal_info.gender }} &nbsp;|&nbsp; 
+                        <strong>Nationality:</strong> {{ c.personal_info.nationality }}
+                    </p>
+                    
+                    <p><strong>📧 Email:</strong> {{ c.contact_info.email }}</p>
+                    <p><strong>📞 Phone:</strong> {{ c.contact_info.phone }}</p>
+                    
+                    <p style="margin-top: 0.5rem;">
+                        <strong>📍 Address:</strong> 
+                        {{ c.contact_info.address.street }}, {{ c.contact_info.address.city }}, 
+                        {{ c.contact_info.address.state }} {{ c.contact_info.address.zip_code }}, 
+                        {{ c.contact_info.address.country }}
+                    </p>
+                    
+                    <div style="margin-top: 0.8rem; font-size: 0.95rem;">
+                        {% if c.professional_links and c.professional_links.linkedin %}
+                            <strong>🔗 LinkedIn:</strong> <a href="{{ c.professional_links.linkedin }}" target="_blank" style="color: var(--primary-color);">{{ c.professional_links.linkedin }}</a><br>
+                        {% endif %}
+                        {% if c.professional_links and c.professional_links.portfolio %}
+                            <strong>💻 Portfolio/GitHub:</strong> <a href="{{ c.professional_links.portfolio }}" target="_blank" style="color: var(--primary-color);">{{ c.professional_links.portfolio }}</a>
+                        {% endif %}
+                    </div>
+                    
+                    <p style="margin-top: 1rem; padding: 0.5rem; background: #f1f5f9; display: inline-block; border-radius: 6px;">
+                        <strong>🎯 Applied For:</strong> <span style="color: var(--primary-color); font-weight: 600;">{{ c.applied_job_title }}</span>
+                    </p>
+                </div>
+                
+                <div class="popup-right-docs">
+                    {% if c.personal_info.profile_pic %}
+                        <img src="{{ url_for('uploaded_file', filename=c.personal_info.profile_pic) }}" alt="Profile Pic" class="popup-profile-pic">
+                    {% else %}
+                        <div class="popup-profile-pic-placeholder">No Photo</div>
+                    {% endif %}
+                    
+                    <div class="popup-doc-links">
+                        {% if c.resume_filename %}<a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=c.resume_filename) }}', 'Resume')" class="badge badge-status">📄 View Resume</a>{% endif %}
+                        {% if c.personal_info.cnic_front %}<a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=c.personal_info.cnic_front) }}', 'CNIC Front')" class="badge badge-neutral">💳 CNIC Front</a>{% endif %}
+                        {% if c.personal_info.cnic_back %}<a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=c.personal_info.cnic_back) }}', 'CNIC Back')" class="badge badge-neutral">💳 CNIC Back</a>{% endif %}
+                        {% if c.personal_info.domicile %}<a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=c.personal_info.domicile) }}', 'Domicile')" class="badge badge-neutral">🏠 Domicile</a>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border-color);">
+            
+            <div class="popup-body-grid">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🎓 Education History</h4>
+                    {% if c.education %}
+                        {% for edu in c.education %}
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <strong>{{ edu.degree_name }} ({{ edu.level }})</strong><br>
+                            {{ edu.institute_name }}<br>
+                            <small style="color: var(--text-muted);">Grade: {{ edu.grade }} &nbsp;|&nbsp; Score: {{ edu.obtained_marks }} / {{ edu.total_marks }}</small>
+                            {% if edu.document %}<br><a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=edu.document) }}', 'Degree - {{ edu.degree_name | replace("'", "\\'") }}')" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; display: inline-block; margin-top: 0.4rem;">View Degree Document ➔</a>{% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">No education details provided.</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">💼 Professional Experience</h4>
+                    {% if c.experience %}
+                        {% for exp in c.experience %}
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <strong>{{ exp.job_designation }}</strong> at {{ exp.company_name }}<br>
+                            <small style="color: var(--text-muted);">
+                                📍 {{ exp.location }}<br>
+                                ⏱ {{ exp.start_date }} to {% if exp.status == 'Current' %}Present{% else %}{{ exp.end_date }}{% endif %} ({{ exp.years }} Years)<br>
+                                🏢 {{ exp.employment_type }} | {{ exp.modality }}
+                            </small>
+                            {% if exp.document %}<br><a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=exp.document) }}', 'Experience - {{ exp.company_name | replace("'", "\\'") }}')" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; display: inline-block; margin-top: 0.4rem;">View Experience Letter ➔</a>{% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">No experience details provided.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+            <div class="popup-body-grid">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">📜 Certifications</h4>
+                    {% if c.certifications %}
+                        {% for cert in c.certifications %}
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <strong>{{ cert.name }}</strong><br>
+                            <small style="color: var(--text-muted);">Issuing Org: {{ cert.organization }}</small>
+                            {% if cert.document %}<br><a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=cert.document) }}', 'Certificate - {{ cert.name | replace("'", "\\'") }}')" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; display: inline-block; margin-top: 0.4rem;">View Certificate ➔</a>{% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">No certifications provided.</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🤝 Recommendations</h4>
+                    {% if c.recommendations %}
+                        {% for rec in c.recommendations %}
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <strong>{{ rec.name }}</strong><br>
+                            <small style="color: var(--text-muted);">{{ rec.designation }}</small>
+                            {% if rec.document %}<br><a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=rec.document) }}', 'Recommendation - {{ rec.name | replace("'", "\\'") }}')" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; display: inline-block; margin-top: 0.4rem;">View Recommendation Letter ➔</a>{% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">No recommendations provided.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <h4 style="color: var(--primary-color); margin-bottom: 0.8rem;">🔬 Research Papers</h4>
+                {% if c.research %}
+                    <ul style="list-style-type: none; padding-left: 0; margin-bottom: 1.5rem;">
+                    {% for res in c.research %}
+                        <li style="margin-bottom: 0.5rem; padding: 0.75rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px;">
+                            <strong>{{ res.title }}</strong> 
+                            {% if res.link %} 
+                                &nbsp;-&nbsp; <a href="{{ res.link }}" target="_blank" style="color: var(--primary-color); font-size: 0.9rem; font-weight: 600;">View Research Link ➔</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">No research papers provided.</p>
+                {% endif %}
+
+                <h4 style="color: var(--primary-color); margin-bottom: 0.8rem;">💡 Declared Skills</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% if c.skills %}
+                        {% for skill in c.skills %}
+                        <span class="badge" style="background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe;">{{ skill }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">No skills listed.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
     <script>
+        // --- PROFILE POPUP LOGIC ---
+        function openProfilePopup(candidateId) {
+            document.getElementById('popup-' + candidateId).style.display = 'flex';
+            document.body.style.overflow = 'hidden'; 
+        }
+        function closeProfilePopup(candidateId) {
+            document.getElementById('popup-' + candidateId).style.display = 'none';
+            document.body.style.overflow = 'auto'; 
+        }
+
+        // --- SMART DOCUMENT VIEWER MODAL LOGIC (UPDATED WITH MAMMOTH) ---
+        function openDocumentModal(url, title) {
+            document.getElementById('docModalTitle').innerText = '📄 ' + title;
+            document.getElementById('docFallbackLink').href = url;
+            
+            const iframe = document.getElementById('documentIframe');
+            const imgContainer = document.getElementById('imageViewerContainer');
+            const img = document.getElementById('documentImage');
+            const docxContainer = document.getElementById('docxViewerContainer');
+
+            // Reset all displays
+            iframe.style.display = 'none';
+            imgContainer.style.display = 'none';
+            docxContainer.style.display = 'none';
+            
+            iframe.src = '';
+            img.src = '';
+            docxContainer.innerHTML = '';
+
+            const lowerUrl = url.toLowerCase();
+
+            // 1. If Image
+            if (lowerUrl.endsWith('.png') || lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg')) {
+                img.src = url;
+                imgContainer.style.display = 'flex';
+            } 
+            // 2. If .docx (Render Locally with Mammoth.js!)
+            else if (lowerUrl.endsWith('.docx')) {
+                docxContainer.style.display = 'block';
+                docxContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding-top: 2rem;">Loading document...</p>';
+                
+                fetch(url)
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => mammoth.convertToHtml({arrayBuffer: arrayBuffer}))
+                    .then(result => {
+                        docxContainer.innerHTML = result.value;
+                    })
+                    .catch(err => {
+                        docxContainer.innerHTML = '<p style="color: red; text-align: center;">Error loading document. Please use the download link below.</p>';
+                        console.error(err);
+                    });
+            } 
+            // 3. If PDF or other
+            else {
+                iframe.src = url;
+                iframe.style.display = 'block';
+            }
+
+            document.getElementById('documentModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeDocumentModal() {
+            document.getElementById('documentModal').style.display = 'none';
+            document.getElementById('documentIframe').src = '';
+            document.getElementById('documentImage').src = '';
+            document.getElementById('docxViewerContainer').innerHTML = '';
+            
+            let profileStillOpen = false;
+            document.querySelectorAll('.profile-popup-bg').forEach(function(el) {
+                if (el.id !== 'documentModal' && el.style.display === 'flex') {
+                    profileStillOpen = true;
+                }
+            });
+            
+            if (!profileStillOpen) {
+                document.body.style.overflow = 'auto'; 
+            }
+        }
+
         // --- 1. EXPLAINABLE AI MODAL LOGIC ---
         function openAiModal(matched, missing) {
             const matchedContainer = document.getElementById('matchedSkillsContainer');
@@ -318,9 +604,9 @@
         // --- 2. DATATABLES PAGINATION & SORTING ---
         $(document).ready(function() {
             $('#candidateTable').DataTable({
-                "pageLength": 10, // Show 10 candidates per page
-                "lengthMenu": [5, 10, 25, 50, 100], // Allow admin to change page size
-                "order": [[4, "desc"]], // Automatically sort by the 5th column (AI Score) from Highest to Lowest
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "order": [[5, "desc"]], // Automatically sort by the 6th column (AI Score) from Highest to Lowest
                 "language": {
                     "search": "🔍 Filter Candidates:",
                     "emptyTable": "No candidates found for this job yet."
@@ -348,11 +634,11 @@
         const jobValues = {{ stats.job_values | tojson | safe }};
 
         const themeColors = { 
-            'Applied': '#3b82f6',       // Blue
-            'Shortlisted': '#f59e0b',   // Yellow
-            'Interviewing': '#8b5cf6',  // Purple
-            'Hired': '#10b981',         // Green
-            'Rejected': '#ef4444'       // Red
+            'Applied': '#3b82f6',
+            'Shortlisted': '#f59e0b',
+            'Interviewing': '#8b5cf6',
+            'Hired': '#10b981',
+            'Rejected': '#ef4444'
         };
         const pieColors = statusLabels.map(label => themeColors[label] || '#3b82f6');
 
@@ -375,26 +661,21 @@
             const statusDropdown = document.getElementById('statusSelect_' + candidateId).value;
             
             if (statusDropdown === 'Interviewing') {
-                // If they selected Interviewing, pop up the modal!
                 currentCandidateId = candidateId;
                 
-                // Clear out old data
                 document.getElementById('modal_date').value = '';
                 document.getElementById('modal_time').value = '';
                 document.getElementById('modal_venue').value = '';
                 document.getElementById('modal_inform_later').checked = false;
                 toggleInterviewInputs();
                 
-                // Show modal
                 document.getElementById('interviewModal').style.display = 'flex';
             } else {
-                // If it's Shortlisted or Rejected, just submit normally
                 document.getElementById('statusForm_' + candidateId).submit();
             }
         }
 
         function toggleInterviewInputs() {
-            // Disable the input boxes if the HR admin checks "Inform Later"
             const informLater = document.getElementById('modal_inform_later').checked;
             document.getElementById('modal_date').disabled = informLater;
             document.getElementById('modal_time').disabled = informLater;
@@ -409,13 +690,11 @@
         function submitInterviewDetails() {
             if (!currentCandidateId) return;
 
-            // 1. Move the data from the visual modal into the hidden form inputs
             document.getElementById('hidden_date_' + currentCandidateId).value = document.getElementById('modal_date').value;
             document.getElementById('hidden_time_' + currentCandidateId).value = document.getElementById('modal_time').value;
             document.getElementById('hidden_venue_' + currentCandidateId).value = document.getElementById('modal_venue').value;
             document.getElementById('hidden_inform_later_' + currentCandidateId).value = document.getElementById('modal_inform_later').checked ? 'true' : 'false';
 
-            // 2. Actually submit the form to Python
             document.getElementById('statusForm_' + currentCandidateId).submit();
             closeInterviewModal();
         }

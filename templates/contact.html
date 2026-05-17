@@ -1,49 +1,74 @@
 {% extends "public_base.html" %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color);">
+<div style="max-width: 950px; margin: 4rem auto; padding: 0 1.5rem;">
     
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <h1 style="color: var(--primary-color); margin-bottom: 0.5rem; font-size: 2rem;">Contact Us</h1>
-        <p style="color: var(--text-muted); font-size: 1.05rem;">Have a question? Send a message directly to the HRVision Admin Team!</p>
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="color: var(--primary-color); margin-bottom: 0.5rem; font-size: 2.5rem; font-weight: 800; letter-spacing: -1px;">Get in Touch</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Have a question or need support? The HRVision team is here to help.</p>
     </div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                {% if "Oops" in message %}
-                    <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-weight: 600; border: 1px solid #fecaca;">
-                        {{ message }}
-                    </div>
-                {% else %}
-                    <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-weight: 600; border: 1px solid #bbf7d0;">
-                        {{ message }}
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div style="display: flex; flex-wrap: wrap; background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); overflow: hidden;">
+        
+        
 
-    <form action="/contact" method="POST" class="profile-form">
-        <div class="form-group">
-            <label>Your Full Name</label>
-            <input type="text" name="name" required placeholder="Jane Doe">
+        <div style="flex: 1.5; min-width: 300px; padding: 3rem;">
+            <h3 style="color: var(--text-main); margin-bottom: 1.5rem; font-size: 1.4rem;">Send a Message</h3>
+            
+            <form action="/contact" method="POST" class="profile-form">
+                <div class="form-group">
+                    <label>Your Full Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Jane Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label>Your Email Address</label>
+                    <input type="email" name="email" required placeholder="jane@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Your Message</label>
+                    <textarea name="message" rows="5" required placeholder="How can we help you today?"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.8rem; font-size: 1.05rem;">
+                    Send Message ➔
+                </button>
+            </form>
         </div>
         
-        <div class="form-group">
-            <label>Your Email Address</label>
-            <input type="email" name="email" required placeholder="jane@example.com">
+        <div style="flex: 1; min-width: 300px; background-color: #f8fafc; padding: 3rem; border-right: 1px solid var(--border-color);">
+            <h3 style="color: var(--text-main); margin-bottom: 2rem; font-size: 1.4rem;">Contact Information</h3>
+            
+            <div style="margin-bottom: 1.8rem; display: flex; align-items: flex-start; gap: 1rem;">
+                <div style="font-size: 1.5rem;"></div>
+                <div>
+                    <strong style="display: block; color: var(--text-main); margin-bottom: 0.3rem;">📍 Location</strong>
+                    <span style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                        University of Agriculture<br>
+                        Faisalabad, Punjab, Pakistan
+                    </span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.8rem; display: flex; align-items: flex-start; gap: 1rem;">
+                <div style="font-size: 1.5rem;"></div>
+                <div>
+                    <strong style="display: block; color: var(--text-main); margin-bottom: 0.3rem;">📧 Email Us</strong>
+                    <a href="mailto:admin@hrvision.com" style="color: var(--primary-color); font-size: 0.95rem; text-decoration: none; font-weight: 600;">
+                        2020n02892@gmail.com
+                    </a>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <div style="font-size: 1.5rem;"></div>
+                <div>
+                    <strong style="display: block; color: var(--text-main); margin-bottom: 0.3rem;">📞 Call Us</strong>
+                    <span style="color: var(--text-muted); font-size: 0.95rem;"> +92 328 7390683</span>
+                </div>
+            </div>
         </div>
-        
-        <div class="form-group">
-            <label>Your Message</label>
-            <textarea name="message" rows="6" required placeholder="How can we help you today?"></textarea>
-        </div>
-        
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">
-            Send Message ✉️
-        </button>
-    </form>
-    
+    </div>
 </div>
 {% endblock %}

@@ -276,14 +276,19 @@ def login():
             session['user_name'] = user['name']
             session['email'] = user['email']
             session['role'] = user['role']
+            
+            # --- NEW: SUCCESS MESSAGE ---
+            flash(f"Welcome back, {user['name']}! You have successfully logged in.")
+            
             next_url = session.pop('next_url', url_for('candidate_dashboard'))
             return redirect(next_url)
         else:
             is_admin = users_collection.find_one({"email": email, "role": "admin"})
             if is_admin:
-                flash("Administrators must use the secure Admin Portal to log in.")
+                flash("Administrators must use the secure Admin Portal to log in.", "error")
             else:
-                flash("Invalid email or password.")
+                # Changed to "Incorrect" so your HTML smart-block catches it as a red error!
+                flash("Incorrect email or password.", "error")
             return redirect(url_for('login'))
             
     return render_template('login.html')
@@ -435,16 +440,61 @@ def export_csv():
 
     si = StringIO()
     cw = csv.writer(si)
-    cw.writerow(['Candidate Name', 'Email Address', 'Phone Number', 'Target Job', 'AI Match Score (%)', 'Current Status', 'Date Applied', 'Resume Link', 'Education Documents', 'Experience Letters', 'Certifications', 'Research Links'])
+    
+    # --- 1. NEW COMPREHENSIVE EXCEL HEADERS ---
+    cw.writerow([
+        'Candidate Name', 'Email Address', 'Phone Number', 'Location', 
+        'Target Job', 'AI Match Score (%)', 'Current Status', 'Date Applied', 
+        'Declared Skills', 'Total Experience (Years)',
+        'Education History', 'Experience History', 
+        'Resume Link', 'CNIC Front', 'CNIC Back', 'Domicile', 
+        'Education Documents', 'Experience Letters', 'Certifications', 'Research Links'
+    ])
+    
     base_url = request.host_url.rstrip('/')
+    
     for c in candidates:
+        # Basic Info
         name = f"{c.get('personal_info', {}).get('first_name', '')} {c.get('personal_info', {}).get('last_name', '')}"
         email = c.get('contact_info', {}).get('email', '')
         phone = c.get('contact_info', {}).get('phone', '')
+        
+        # Location Formatter
+        city = c.get('contact_info', {}).get('address', {}).get('city', '')
+        country = c.get('contact_info', {}).get('address', {}).get('country', '')
+        location = f"{city}, {country}".strip(', ')
+        
+        # Application Info
         job_title = c.get('applied_job_title', 'N/A')
         score = c.get('ai_score', 'Pending')
         status = c.get('status', 'Applied')
         applied_at = c.get('applied_at', '')
+        
+        # Skills & Experience
+        skills = ", ".join(c.get('skills', []))
+        total_exp = c.get('total_experience_years', 0)
+        
+        # --- 2. FORMATTED EDUCATION HISTORY ---
+        edu_details_list = []
+        for edu in c.get('education', []):
+            edu_str = f"• {edu.get('degree_name')} ({edu.get('level')}) at {edu.get('institute_name')} | Score: {edu.get('obtained_marks')}/{edu.get('total_marks')}"
+            edu_details_list.append(edu_str)
+        edu_details = "\n".join(edu_details_list) if edu_details_list else "No Education Listed"
+
+        # --- 3. FORMATTED EXPERIENCE HISTORY ---
+        exp_details_list = []
+        for exp in c.get('experience', []):
+            end_date_str = "Present" if exp.get('status') == 'Current' else exp.get('end_date')
+            exp_str = f"• {exp.get('job_designation')} at {exp.get('company_name')} ({exp.get('employment_type')}, {exp.get('modality')}) | {exp.get('start_date')} to {end_date_str}"
+            exp_details_list.append(exp_str)
+        exp_details = "\n".join(exp_details_list) if exp_details_list else "No Experience Listed"
+
+        # --- 4. IDENTITY DOCUMENTS ---
+        cnic_front = f"{base_url}/uploads/{c['personal_info'].get('cnic_front')}" if c.get('personal_info', {}).get('cnic_front') else "Not Provided"
+        cnic_back = f"{base_url}/uploads/{c['personal_info'].get('cnic_back')}" if c.get('personal_info', {}).get('cnic_back') else "Not Provided"
+        domicile = f"{base_url}/uploads/{c['personal_info'].get('domicile')}" if c.get('personal_info', {}).get('domicile') else "Not Provided"
+
+        # --- 5. OTHER DOCUMENTS ---
         resume_link = f"{base_url}/uploads/{c.get('resume_filename')}" if c.get('resume_filename') else "Not Provided"
         edu_docs = [f"{edu.get('degree_name')}: {base_url}/uploads/{edu.get('document')}" for edu in c.get('education', []) if edu.get('document')]
         edu_links = "\n".join(edu_docs) if edu_docs else "No Documents"
@@ -454,10 +504,21 @@ def export_csv():
         cert_links = "\n".join(cert_docs) if cert_docs else "No Documents"
         res_docs = [f"{res.get('title')}: {res.get('link')}" for res in c.get('research', []) if res.get('link')]
         res_links = "\n".join(res_docs) if res_docs else "No Links"
-        cw.writerow([name, email, phone, job_title, score, status, applied_at, resume_link, edu_links, exp_links, cert_links, res_links])
+        
+        # WRITE THE ROW TO CSV
+        cw.writerow([
+            name, email, phone, location, 
+            job_title, score, status, applied_at, 
+            skills, total_exp,
+            edu_details, exp_details, 
+            resume_link, cnic_front, cnic_back, domicile, 
+            edu_links, exp_links, cert_links, res_links
+        ])
     
     output = si.getvalue()
-    return Response(output, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=HRVision_Candidates_Export.csv"})
+    
+    # 6. EXCEL COMPATIBILITY TRICK: "\ufeff" (BOM) prevents Excel from breaking newlines and special characters!
+    return Response("\ufeff" + output, mimetype="text/csv; charset=utf-8", headers={"Content-Disposition": "attachment;filename=HRVision_Candidates_Export.csv"})
 
 @app.route('/admin/create_hr', methods=['GET', 'POST'])
 def create_hr():
@@ -1080,6 +1141,46 @@ def submit_profile():
             flash("Your Master Profile has been updated successfully! It will automatically fill future job applications.")
             return redirect(url_for('candidate_dashboard'))
 
+   # ==========================================================
+        # --- NEW: HARD REQUIREMENT PRE-SCREENING GATE ---
+        # ==========================================================
+        if target_job:
+            # 1. Evaluate Education Hierarchy
+            education_rank = {
+                "High School": 1, 
+                "Intermediate": 2, 
+                "Bachelors": 3, 
+                "Masters": 4, 
+                "PhD": 5
+            }
+            
+            job_min_edu = target_job.get("min_education", "")
+            job_edu_rank = education_rank.get(job_min_edu, 0)
+            
+            candidate_max_edu_rank = 0
+            for edu in education_history:
+                rank = education_rank.get(edu.get("level", ""), 0)
+                if rank > candidate_max_edu_rank:
+                    candidate_max_edu_rank = rank
+                    
+            if job_edu_rank > 0 and candidate_max_edu_rank < job_edu_rank:
+                flash(f"Application blocked: This position strictly requires a minimum education level of {job_min_edu}.","flash-error")
+                return redirect(url_for('job_board'))
+                
+            # 2. Evaluate Experience Minimums
+            job_min_exp = float(target_job.get("min_experience_years", 0.0))
+            if total_years_exp < job_min_exp:
+                flash(f"Application blocked: This position requires a minimum of {job_min_exp} years of professional experience.","flash-error")
+                return redirect(url_for('job_board'))
+
+            # 3. Evaluate Research Paper Requirements
+            job_requires_research = str(target_job.get("requires_research_paper", "No")).strip().lower()
+            
+            # If the job strictly requires it ("yes"), check if the candidate provided any links
+            if job_requires_research == "yes" and len(research_history) == 0:
+                flash("Application blocked: This position strictly requires at least one published research paper or project link.","flash-error")
+                return redirect(url_for('job_board'))
+        # ==========================================================
 # --- EXPLAINABLE AI INTEGRATION (SMART LOCAL/REMOTE SWITCH) ---
         final_ai_score = None
         matched_skills = []
