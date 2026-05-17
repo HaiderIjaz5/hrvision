@@ -1080,7 +1080,7 @@ def submit_profile():
             flash("Your Master Profile has been updated successfully! It will automatically fill future job applications.")
             return redirect(url_for('candidate_dashboard'))
 
-# --- EXPLAINABLE AI INTEGRATION (MICROSERVICE CALL) ---
+# --- EXPLAINABLE AI INTEGRATION (SMART LOCAL/REMOTE SWITCH) ---
         final_ai_score = None
         matched_skills = []
         missing_skills = []
@@ -1088,37 +1088,56 @@ def submit_profile():
         if target_job and resume_filename:
             full_resume_path = os.path.join(app.config['UPLOAD_FOLDER'], resume_filename)
             
-            # 1. We MUST extract the text from the PDF before sending it!
-            candidate_full_text = extract_text_from_file(full_resume_path)
+            # Render automatically sets an environment variable named 'RENDER' to 'true'
+            # We use this to detect if the app is hosted on Render or running locally
+            IS_ON_RENDER = os.environ.get('RENDER') == 'true'
             
-            try:
-                # 🛑 CONNECTING TO YOUR NEW HUGGING FACE SERVER 🛑
-                ai_server_url = "https://haiderijaz-hrvision-ai-engine.hf.space/api/score"
+            if IS_ON_RENDER:
+                print("☁️ App is on Render: Delegating heavy AI math to Hugging Face microservice...")
                 
-                # 2. Send the text to Hugging Face to do the heavy math
-                response = requests.post(ai_server_url, json={
-                    "resume_text": candidate_full_text,
-                    "job_description": target_job.get("job_description", ""),
-                    "mandatory_skills": target_job.get("mandatory_skills", []),
-                    "candidate_skills": skills_list
-                }, timeout=30)
+                # 1. Extract the text from the PDF before sending it to the API
+                candidate_full_text = extract_text_from_file(full_resume_path)
                 
-                # 3. Catch the answer coming back from Hugging Face!
-                if response.status_code == 200:
-                    ai_results = response.json()
-                    final_ai_score = ai_results.get("ai_score")
-                    matched_skills = ai_results.get("matched", [])
-                    missing_skills = ai_results.get("missing", [])
-                else:
-                    print(f"AI Server returned an error: {response.status_code}")
+                try:
+                    ai_server_url = "https://haiderijaz-hrvision-ai-engine.hf.space/api/score"
+                    response = requests.post(ai_server_url, json={
+                        "resume_text": candidate_full_text,
+                        "job_description": target_job.get("job_description", ""),
+                        "mandatory_skills": target_job.get("mandatory_skills", []),
+                        "candidate_skills": skills_list
+                    }, timeout=30)
+                    
+                    if response.status_code == 200:
+                        ai_results = response.json()
+                        final_ai_score = ai_results.get("ai_score")
+                        matched_skills = ai_results.get("matched", [])
+                        missing_skills = ai_results.get("missing", [])
+                    else:
+                        print(f"❌ AI Server returned an error: {response.status_code}")
+                        final_ai_score = 0.0
+                        
+                except Exception as e:
+                    print(f"❌ Failed to connect to Hugging Face AI Server: {e}")
                     final_ai_score = 0.0
                     
-            except Exception as e:
-                # 4. The except block catches crashes if Hugging Face is asleep
-                print(f"Failed to connect to AI Server: {e}")
-                final_ai_score = 0.0
+            else:
+                print("💻 App is running Locally: Using local ai_engine.py...")
+                try:
+                    # We import it here so Render NEVER tries to load the heavy AI libraries
+                    from ai_engine import calculate_resume_score
+                    
+                    # The local function expects the file path directly
+                    final_ai_score, matched_skills, missing_skills = calculate_resume_score(
+                        resume_path=full_resume_path,
+                        job_description=target_job.get("job_description", ""),
+                        mandatory_skills=target_job.get("mandatory_skills", []),
+                        candidate_skills=skills_list
+                    )
+                except Exception as e:
+                    print(f"❌ Local AI Processing Error: {e}")
+                    final_ai_score = 0.0
 
-        # Create the specific Job Application data block
+        # Create the specific Job Application data block (LEAVE THIS EXACTLY AS IS)
         candidate_data = master_profile_data.copy()
         candidate_data["applied_job_id"] = applied_job_id
         candidate_data["applied_job_title"] = applied_job_title
