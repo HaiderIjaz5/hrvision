@@ -48,13 +48,10 @@
                     <h2 style="color: var(--text-main); margin-bottom: 0.5rem;" class="job-title">{{ job.job_title }}</h2>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.8;">
                         🏢 <span class="job-dept">{{ job.department }}</span> &nbsp; | &nbsp; 📍 {{ job.location }} ({{ job.modality }}) &nbsp; | &nbsp; ⏱️ {{ job.employment_type }} <br>
-                        
-                        <span style="display: inline-block; margin-top: 0.2rem; padding: 0.2rem 0.5rem; background-color: #f1f5f9; border-radius: 4px; font-size: 0.8rem; color: #475569;">
-                            👤 Posted by: {{ job.admin_name | default('HR Team') }}
-                        </span>
+                     
 
                         {% if job.deadline %}
-                            <span style="display: inline-block; margin-left: 0.5rem; margin-top: 0.2rem; padding: 0.2rem 0.5rem; background-color: #fee2e2; border-radius: 4px; font-size: 0.8rem; color: #991b1b; font-weight: bold;">
+                            <span style="display: inline-block; margin-left: 0rem; margin-top: 0.2rem; padding: 0.2rem 0.5rem; background-color: #fee2e2; border-radius: 4px; font-size: 0.8rem; color: #991b1b; font-weight: bold;">
                                 ⏳ Apply By: {{ job.deadline }}
                             </span>
                         {% endif %}

@@ -18,12 +18,21 @@
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Authorized Personnel Only</p>
         </div>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for message in messages %}
-                    <div style="background-color: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-size: 0.9rem; border: 1px solid #fecaca;">
-                        {{ message }}
-                    </div>
+                {% for category, message in messages %}
+                    
+                    {% if category == 'error' or 'incorrect' in message.lower() or 'invalid' in message.lower() or 'unauthorized' in message.lower() %}
+                        <div style="background-color: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-size: 0.95rem; border: 1px solid #fecaca; font-weight: 600;">
+                            🚨 {{ message }}
+                        </div>
+                    
+                    {% else %}
+                        <div style="background-color: #dcfce7; color: #166534; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-size: 0.95rem; border: 1px solid #bbf7d0; font-weight: 600;">
+                            ✅ {{ message }}
+                        </div>
+                    {% endif %}
+                    
                 {% endfor %}
             {% endif %}
         {% endwith %}
