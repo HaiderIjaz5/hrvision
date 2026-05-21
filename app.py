@@ -71,7 +71,7 @@ def send_application_receipt_email(candidate_email, candidate_name, job_title):
     msg['To'] = candidate_email
     
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
+        server = smtplib.SMTP('smtp.gmail.com', 465, timeout=10)
         server.starttls()
         server.login(MY_EMAIL, MY_APP_PASSWORD)
         server.sendmail(MY_EMAIL, candidate_email, msg.as_string())
