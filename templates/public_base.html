@@ -55,8 +55,11 @@
             
             {% elif session.get('role') == 'candidate' %}
                 <div class="dropdown">
-                    <button class="user-profile-btn">
-                        {{ session.get('user_name', 'My Account') }} ▼
+                    <button class="user-profile-btn" style="display: flex; align-items: center; max-width: 160px; justify-content: space-between;">
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left;">
+                            {{ session.get('user_name', 'My Account') }}
+                        </span>
+                        <span style="margin-left: 6px; flex-shrink: 0;">▼</span>
                     </button>
                     <div class="dropdown-content">
                         <a href="{{ url_for('candidate.candidate_dashboard') }}">My Applications</a>
