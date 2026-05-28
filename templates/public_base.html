@@ -8,6 +8,18 @@
     
     <title>HRVision</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        .header-nav-links a {
+            transition: color 0.3s ease;
+        }
+        
+        .header-nav-links a:hover,
+        .active-nav-link {
+            color: var(--primary-color) !important;
+            font-weight: 600 !important;
+        }
+    </style>
 </head>
 <body class="public-layout">
 
@@ -23,23 +35,23 @@
             </button>
         </div>
 
-        <a href="/" class="header-logo-group">
+        <a href="{{ url_for('public.my_custom_home') }}" class="header-logo-group">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HRVision Logo" style="height: 32px; width: auto;">
             <span class="header-logo">HRVision</span>
         </a>
         
         <ul class="header-nav-links" id="mobileNav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/jobs">Browse Jobs</a></li>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/contact">Contact Us</a></li>
+            <li><a href="{{ url_for('public.my_custom_home') }}" class="{% if request.endpoint == 'public.my_custom_home' %}active-nav-link{% endif %}">Home</a></li>
+            <li><a href="{{ url_for('candidate.job_board') }}" class="{% if request.endpoint == 'candidate.job_board' %}active-nav-link{% endif %}">Browse Jobs</a></li>
+            <li><a href="{{ url_for('public.about') }}" class="{% if request.endpoint == 'public.about' %}active-nav-link{% endif %}">About Us</a></li>
+            <li><a href="{{ url_for('public.contact') }}" class="{% if request.endpoint == 'public.contact' %}active-nav-link{% endif %}">Contact Us</a></li>
         </ul>
         
         <div class="header-right">
             
             {% if session.get('role') == 'admin' %}
-                <a href="/admin/dashboard" class="btn btn-primary btn-sm"><span class="hide-on-mobile">Admin </span>Dashboard</a>
-                <a href="/logout" class="btn btn-secondary btn-sm hide-on-mobile">Logout</a>
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-sm"><span class="hide-on-mobile">Admin </span>Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm hide-on-mobile">Logout</a>
             
             {% elif session.get('role') == 'candidate' %}
                 <div class="dropdown">
@@ -47,11 +59,11 @@
                         {{ session.get('user_name', 'My Account') }} ▼
                     </button>
                     <div class="dropdown-content">
-                        <a href="/candidate/dashboard">My Applications</a>
-                        <a href="/candidate/my_profile">Master Profile</a>
-                        <a href="/candidate/settings">Account Settings</a>
+                        <a href="{{ url_for('candidate.candidate_dashboard') }}">My Applications</a>
+                        <a href="{{ url_for('candidate.my_profile') }}">Master Profile</a>
+                        <a href="{{ url_for('candidate.candidate_settings') }}">Account Settings</a>
                         <div style="border-top: 1px solid var(--border-color); margin: 0.25rem 0;"></div>
-                        <a href="/logout" style="color: var(--danger);">Logout</a>
+                        <a href="{{ url_for('auth.logout') }}" style="color: var(--danger);">Logout</a>
                     </div>
                 </div>
             
@@ -92,15 +104,15 @@
             <div>
                 <h4>Platform</h4>
                 <ul>
-                    <li><a href="/jobs">Browse Jobs</a></li>
-                    <li><a href="/login">Candidate Portal</a></li>
+                    <li><a href="{{ url_for('candidate.job_board') }}">Browse Jobs</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Candidate Portal</a></li>
                 </ul>
             </div>
             <div>
                 <h4>Legal</h4>
                 <ul>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/about">About Us</a></li>
+                    <li><a href="{{ url_for('public.privacy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ url_for('public.about') }}">About Us</a></li>
                 </ul>
             </div>
         </div>

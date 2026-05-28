@@ -35,7 +35,10 @@ def job_details(job_id):
         job = jobs_collection.find_one({"_id": ObjectId(job_id)})
         if not job:
             flash("Job not found or has been removed.")
-            return redirect(request.referrer or url_for('candidate.job_board'))
+            return redirect(url_for('candidate.job_board'))
+    except Exception:
+        flash("Invalid Job ID.", "error")
+        return redirect(url_for('candidate.job_board'))
             
         deadline = job.get('deadline', '')
         today_str = datetime.now().strftime('%Y-%m-%d')

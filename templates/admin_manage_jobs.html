@@ -12,14 +12,12 @@
         <aside class="sidebar">
             <h2>HRVision AI</h2>
             <ul class="nav-links">
-                <li><a href="/admin/dashboard">Dashboard Overview</a></li>
+                <li><a href="/admin/dashboard" >Dashboard Overview</a></li>
                 <li><a href="/admin/post_job">Post a New Job</a></li>
-                <li><a href="/admin/jobs" class="active">Manage Postings</a></li>
-                
+                <li><a href="/admin/jobs" class="active" style="background-color: #eff6ff; color: var(--primary-color);">Manage Postings</a></li>
                 {% if session.get('email') == 'admin@hrvision.com' %}
-                    <li><a href="/admin/create_hr">+ Add HR Manager</a></li>
+                    <li><a href="/admin/create_hr">Manage HR Team</a></li>
                 {% endif %}
-                
                 <li><a href="/jobs" target="_blank">Live Job Board ➔</a></li>
             </ul>
             <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
