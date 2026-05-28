@@ -3,18 +3,6 @@
 {% block content %}
 <div class="container-sm">
     
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                {% if "match" in message.lower() or "incorrect" in message.lower() %}
-                    <div class="flash-error">{{ message }}</div>
-                {% else %}
-                    <div class="flash-success">{{ message }}</div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <header class="header text-center">
         <h1>Account Settings</h1>
         <p>Update your login credentials here.</p>

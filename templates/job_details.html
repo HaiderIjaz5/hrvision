@@ -15,7 +15,7 @@
             <div>
                 <h1 class="job-detail-title">{{ job.job_title }}</h1>
                 <p style="color: var(--text-muted); font-size: 1.1rem;">
-                    🏢 {{ job.department }} &nbsp; | &nbsp; 📍 {{ job.modality }} &nbsp; | &nbsp; ⏱️ {{ job.employment_type }}
+                    {{ job.department }} &nbsp; | &nbsp; {{ job.modality }} &nbsp; | &nbsp; ⏱ {{ job.employment_type }}
                 </p>
                 <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
                     Posted by: <strong>{{ job.admin_name | default('HR Team') }}</strong>
@@ -28,7 +28,7 @@
                 </a>
                 {% if job.deadline %}
                     <p style="margin-top: 0.8rem; color: var(--danger); font-size: 0.85rem; font-weight: 600;">
-                        ⏳ Deadline: {{ job.deadline }}
+                        Deadline: {{ job.deadline }}
                     </p>
                 {% endif %}
             </div>
@@ -41,16 +41,16 @@
                 <ul style="list-style: none; color: var(--text-muted); font-size: 0.95rem; line-height: 2.2; padding: 0;">
                     
                     <li style="display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
-                        <strong>💰 Salary:</strong> <span style="text-align: right;">{{ job.salary_range }}</span>
+                        <strong>Salary:</strong> <span style="text-align: right;">{{ job.salary_range }}</span>
                     </li>
                     <li style="display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
-                        <strong>🎓 Education:</strong> <span style="text-align: right;">{{ job.min_education }}</span>
+                        <strong>Education:</strong> <span style="text-align: right;">{{ job.min_education }}</span>
                     </li>
                     <li style="display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
-                        <strong>💼 Experience:</strong> <span style="text-align: right;">{{ job.min_experience_years }}+ Years</span>
+                        <strong>Experience:</strong> <span style="text-align: right;">{{ job.min_experience_years }}+ Years</span>
                     </li>
                     <li style="display: flex; justify-content: space-between; gap: 1rem;">
-                        <strong>📄 Research Paper:</strong> 
+                        <strong>Research Paper:</strong> 
                         <span style="text-align: right;" class="{% if job.requires_research_paper == 'Yes' %}text-danger-bold{% endif %}">
                             {{ job.requires_research_paper }}
                         </span>

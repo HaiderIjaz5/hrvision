@@ -35,10 +35,7 @@ def job_details(job_id):
         job = jobs_collection.find_one({"_id": ObjectId(job_id)})
         if not job:
             flash("Job not found or has been removed.")
-            return redirect(url_for('candidate.job_board'))
-    except Exception:
-        flash("Invalid Job ID.", "error")
-        return redirect(url_for('candidate.job_board'))
+            return redirect(request.referrer or url_for('candidate.job_board'))
             
         deadline = job.get('deadline', '')
         today_str = datetime.now().strftime('%Y-%m-%d')
@@ -113,9 +110,14 @@ def candidate_settings():
 def my_profile():
     if 'user_id' not in session or session.get('role') != 'candidate':
         session['next_url'] = request.url
-        return redirect(url_for('auth.login'))
+        # FIX: Added 'auth.' prefix to avoid a BuildError
+        return redirect(url_for('auth.login')) 
         
     existing_profile = profiles_collection.find_one({"user_id": session['user_id']})
+    
+    # FIX: If the profile exists but only contains 'saved_jobs', ignore it
+    if existing_profile and 'personal_info' not in existing_profile:
+        existing_profile = None
     
     if not existing_profile:
         existing_profile = candidates_collection.find_one({"user_id": session['user_id']}, sort=[("applied_at", -1)])
@@ -150,6 +152,11 @@ def apply_job(job_id):
         return redirect(url_for('candidate.job_board'))
         
     existing_profile = profiles_collection.find_one({"user_id": session['user_id']})
+    
+    # FIX: If the profile exists but only contains 'saved_jobs', ignore it
+    if existing_profile and 'personal_info' not in existing_profile:
+        existing_profile = None
+
     if not existing_profile:
         existing_profile = candidates_collection.find_one({"user_id": session['user_id']}, sort=[("applied_at", -1)])
 

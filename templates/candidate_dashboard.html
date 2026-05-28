@@ -50,8 +50,8 @@
     </header>
 
     <div class="tabs-container">
-        <button class="tab-btn active" onclick="switchTab('tab-apps', this)">📄 My Applications</button>
-        <button class="tab-btn" onclick="switchTab('tab-saved', this)">🔖 Saved Jobs</button>
+        <button class="tab-btn active" onclick="switchTab('tab-apps', this)">My Applications</button>
+        <button class="tab-btn" onclick="switchTab('tab-saved', this)">Saved Jobs</button>
     </div>
 
     <div id="tab-apps" class="tab-pane active">
@@ -126,7 +126,7 @@
             <div class="card" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <div>
                     <h3 style="color: var(--primary-color); margin-bottom: 0.25rem;">{{ job.job_title }}</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">🏢 {{ job.department }} &nbsp; | &nbsp; 📍 {{ job.location }}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">{{ job.department }} &nbsp; | &nbsp; {{ job.location }}</p>
                 </div>
                 <a href="{{ url_for('candidate.job_details', job_id=job._id) }}" class="btn btn-primary btn-sm" style="padding: 0.5rem 1rem;">View Job Details</a>
             </div>
