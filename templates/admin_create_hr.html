@@ -129,7 +129,13 @@
                 
                 <div class="form-group">
                     <label>Temporary Password</label>
-                    <input type="password" name="password" required placeholder="••••••••">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" name="password" id="create_password" required placeholder="••••••••" style="width: 100%; padding-right: 40px; box-sizing: border-box;">
+                        <svg id="eye_create" onclick="togglePassword('create_password', 'eye_create')" style="position: absolute; right: 10px; cursor: pointer; width: 20px; height: 20px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.8rem; font-size: 1.05rem;">
@@ -162,8 +168,14 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Reset Password <span style="font-weight: normal; color: var(--text-muted); font-size: 0.85rem;">(Leave blank to keep current)</span></label>
-                    <input type="password" name="password" placeholder="••••••••">
+                    <label>Reset Password <span style="font-weight: normal; font-size: 0.85rem; color: #666;">(Leave blank to keep current)</span></label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" name="password" id="edit_password" placeholder="••••••••" style="width: 100%; padding-right: 40px; box-sizing: border-box;">
+                        <svg id="eye_edit" onclick="togglePassword('edit_password', 'eye_edit')" style="position: absolute; right: 10px; cursor: pointer; width: 20px; height: 20px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.8rem; font-size: 1.05rem;">
@@ -195,6 +207,28 @@
         function closeEditModal() {
             document.getElementById('editHrModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+        }
+        // --- Password Visibility Toggle Logic ---
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === "password") {
+                input.type = "text";
+                // Swap to 'Closed Eye' (Eye Slash) SVG
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                `;
+                icon.style.color = "var(--primary-color)"; // Highlight icon when password is shown
+            } else {
+                input.type = "password";
+                // Swap back to 'Open Eye' SVG
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                `;
+                icon.style.color = "#6b7280"; // Revert to gray
+            }
         }
     </script>
 </body>

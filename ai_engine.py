@@ -4,17 +4,22 @@ import PyPDF2
 import docx
 from sentence_transformers import SentenceTransformer, util
 
-# Global variable to hold the model
 _ai_model = None
 
 def get_model():
-    """Lazy loads the AI model only when it is actually needed to save memory."""
     global _ai_model
     if _ai_model is None:
         print("🧠 Loading Deep Learning AI Model (this might take a few seconds)...")
         _ai_model = SentenceTransformer('all-MiniLM-L6-v2')
         print("✅ AI Model successfully loaded and ready!")
     return _ai_model
+
+def clean_text(text):
+    if not text: return ""
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9\s]', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
 def extract_text_from_file(filepath):
     text = ""
@@ -33,15 +38,9 @@ def extract_text_from_file(filepath):
         print(f"⚠️ Error reading file {filepath}: {e}")
     return text.strip()
 
-def clean_text(text):
-    if not text: return ""
-    text = text.lower()
-    text = re.sub(r'[^a-z0-9\s]', ' ', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-def calculate_resume_score(resume_path, job_description, mandatory_skills, candidate_skills):
+def calculate_resume_score(resume_path, job_description, mandatory_skills=[], candidate_skills=[]):
     resume_raw_text = extract_text_from_file(resume_path)
+    
     if not resume_raw_text and not candidate_skills: 
         return 0, [], mandatory_skills 
         
@@ -53,7 +52,7 @@ def calculate_resume_score(resume_path, job_description, mandatory_skills, candi
         return 0, [], mandatory_skills 
 
     try:
-        model = get_model() # Load model dynamically here
+        model = get_model() 
         candidate_embedding = model.encode(candidate_clean, convert_to_tensor=True)
         jd_embedding = model.encode(jd_clean, convert_to_tensor=True)
         cosine_scores = util.cos_sim(candidate_embedding, jd_embedding)
@@ -62,7 +61,6 @@ def calculate_resume_score(resume_path, job_description, mandatory_skills, candi
         print(f"Error during AI processing: {e}")
         base_ai_score = 0.0
 
-    # --- EXPLAINABLE AI LOGIC ---
     penalty = 0
     candidate_search_text = candidate_clean.lower()
     matched_skills = []
@@ -75,10 +73,7 @@ def calculate_resume_score(resume_path, job_description, mandatory_skills, candi
                 matched_skills.append(skill)
             else:
                 missing_skills.append(skill)
+                penalty += 15 
                 
-        penalty = len(missing_skills) * 10
-
-    final_score = int(base_ai_score - penalty)
-    final_score = max(0, min(100, final_score))
-    
+    final_score = max(0, round(base_ai_score - penalty))
     return final_score, matched_skills, missing_skills

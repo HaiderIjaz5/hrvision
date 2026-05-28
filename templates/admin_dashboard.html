@@ -202,8 +202,8 @@
                                     {% if candidate.applied_job_title %}
                                         <span class="badge badge-neutral" style="margin: 4px 0;">Target: {{ candidate.applied_job_title }}</span><br>
                                     {% endif %}
-                                    <span style="font-size: 0.85rem; color: var(--text-muted);">✉️ {{ candidate.contact_info.email }}</span><br>
-                                    <span style="font-size: 0.85rem; color: var(--text-muted);">📞 {{ candidate.contact_info.phone }}</span>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ candidate.contact_info.email }}</span><br>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ candidate.contact_info.phone }}</span>
                                     <span style="display: none;" class="hidden-skills">{{ candidate.skills | join(' ') }}</span>
                                 </td>
                                 
@@ -304,7 +304,7 @@
                                 <td style="min-width: 130px;">
                                     <span class="badge badge-status" style="margin-bottom: 0.5rem; display: block; text-align: center;">{{ candidate.status }}</span>
                                     
-                                    <form id="statusForm_{{ candidate._id }}" action="{{ url_for('update_status', candidate_id=candidate._id) }}" method="POST" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <form id="statusForm_{{ candidate._id }}" action="{{ url_for('admin.update_status', candidate_id=candidate._id) }}" method="POST" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
                                         <select name="status" id="statusSelect_{{ candidate._id }}" style="padding: 0.35rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color);">
                                             <option value="Applied" {% if candidate.status == 'Applied' %}selected{% endif %}>Applied</option>
                                             <option value="Shortlisted" {% if candidate.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
@@ -320,7 +320,7 @@
 
                                         <button type="button" onclick="handleStatusUpdate('{{ candidate._id }}')" class="btn btn-primary btn-sm" style="width: 100%;">Update Status</button>
                                     </form>
-                                    <form action="{{ url_for('delete_candidate', candidate_id=candidate._id) }}" method="POST" onsubmit="return confirm('Permanently delete this candidate?');">
+                                    <form action="{{ url_for('admin.delete_candidate', candidate_id=candidate._id) }}" method="POST" onsubmit="return confirm('Permanently delete this candidate?');">
                                         <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">🗑️ Delete</button>
                                     </form>
                                 </td>
