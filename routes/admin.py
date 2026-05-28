@@ -407,6 +407,8 @@ def delete_candidate(candidate_id):
             flash("Candidate permanently deleted from your job listing.")
         else:
             flash("Unauthorized: You do not have permission to delete this candidate.", "error")
+    return redirect(url_for('admin.admin_dashboard'))
+    
 @admin_bp.route('/admin/delete_job/<job_id>', methods=['POST'])
 def delete_job(job_id):
     if session.get('role') != 'admin':
