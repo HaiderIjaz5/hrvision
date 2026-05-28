@@ -293,8 +293,10 @@ def submit_profile():
                         
                         diff_days = (end_dt - start_dt).days
                         exp_years_calc = max(0.0, round(diff_days / 365.25, 1))
-                    except Exception as e:
+                    xcept Exception as e:
                         print("Date parse error", e)
+                        # FIX: Alert the user that their dates couldn't be parsed properly
+                        flash(f"Warning: Could not calculate experience duration for '{designations[i]}'. Please ensure dates are in YYYY-MM format.", "error")
                 
                 total_years_exp += exp_years_calc
 
@@ -447,9 +449,14 @@ def submit_profile():
                     else:
                         print(f"❌ AI Server returned an error: {response.status_code}")
                         final_ai_score = 0.0
+                except requests.exceptions.Timeout:
+                    print("⏳ Hugging Face AI Server timed out (likely waking up).")
+                    final_ai_score = 0.0
+                    flash("Note: The AI screening engine is currently waking up. Your profile has been submitted and will be reviewed manually.", "info")
                 except Exception as e:
                     print(f"❌ Failed to connect to Hugging Face AI Server: {e}")
                     final_ai_score = 0.0
+                    flash("Note: AI screening is currently unavailable. Your application has been saved for manual HR review.", "info")
             else:
                 print("💻 App is running Locally: Using local ai_engine.py...")
                 try:

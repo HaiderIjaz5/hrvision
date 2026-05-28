@@ -130,9 +130,9 @@ def export_csv():
             exp_details_list.append(exp_str)
         exp_details = "\n".join(exp_details_list) if exp_details_list else "No Experience Listed"
 
-        cnic_front = f"{base_url}/uploads/{c['personal_info'].get('cnic_front')}" if c.get('personal_info', {}).get('cnic_front') else "Not Provided"
-        cnic_back = f"{base_url}/uploads/{c['personal_info'].get('cnic_back')}" if c.get('personal_info', {}).get('cnic_back') else "Not Provided"
-        domicile = f"{base_url}/uploads/{c['personal_info'].get('domicile')}" if c.get('personal_info', {}).get('domicile') else "Not Provided"
+        cnic_front = f"{base_url}/uploads/{c.get('personal_info', {}).get('cnic_front')}" if c.get('personal_info', {}).get('cnic_front') else "Not Provided"
+        cnic_back = f"{base_url}/uploads/{c.get('personal_info', {}).get('cnic_back')}" if c.get('personal_info', {}).get('cnic_back') else "Not Provided"
+        domicile = f"{base_url}/uploads/{c.get('personal_info', {}).get('domicile')}" if c.get('personal_info', {}).get('domicile') else "Not Provided"
 
         resume_link = f"{base_url}/uploads/{c.get('resume_filename')}" if c.get('resume_filename') else "Not Provided"
         edu_docs = [f"{edu.get('degree_name')}: {base_url}/uploads/{edu.get('document')}" for edu in c.get('education', []) if edu.get('document')]
@@ -425,4 +425,3 @@ def delete_job(job_id):
     flash("Job posting permanently deleted.")
     return redirect(url_for('admin.manage_jobs'))
     
-    return redirect(url_for('admin.admin_dashboard'))
