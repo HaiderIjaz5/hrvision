@@ -293,7 +293,7 @@ def submit_profile():
                         
                         diff_days = (end_dt - start_dt).days
                         exp_years_calc = max(0.0, round(diff_days / 365.25, 1))
-                    xcept Exception as e:
+                    except Exception as e:
                         print("Date parse error", e)
                         # FIX: Alert the user that their dates couldn't be parsed properly
                         flash(f"Warning: Could not calculate experience duration for '{designations[i]}'. Please ensure dates are in YYYY-MM format.", "error")
