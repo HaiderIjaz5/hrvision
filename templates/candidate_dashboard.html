@@ -95,11 +95,11 @@
                             {% if app.status == 'Applied' %}
                                 <span style="color: var(--text-muted);">Applied</span>
                             {% elif app.status == 'Shortlisted' %}
-                                <span style="color: var(--success);">Shortlisted 🎉</span>
+                                <span style="color: var(--success);">Shortlisted </span>
                             {% elif app.status == 'Interviewing' %}
                                 <span style="color: var(--warning);">Interviewing</span>
                                 {% elif app.status == 'Hired' %}
-                                <span style="color: #065f46; font-size: 1.1rem;">Hired! 🏆</span>
+                                <span style="color: #065f46; font-size: 1.1rem;">Hired! </span>
                             {% elif app.status == 'Rejected' %}
                                 <span style="color: var(--danger);">Not Selected</span>
                             {% else %}
