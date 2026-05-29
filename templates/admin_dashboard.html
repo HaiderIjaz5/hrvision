@@ -18,15 +18,15 @@
     <div id="aiModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999999; justify-content:center; align-items:center;">
         <div style="background:var(--card-bg); padding:2rem; border-radius:12px; width:90%; max-width:500px; box-shadow:0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h2 style="color:var(--text-main); margin:0;">🤖 AI Semantic Analysis</h2>
+                <h2 style="color:var(--text-main); margin:0;">AI Semantic Analysis</h2>
                 <button onclick="closeAiModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted);">&times;</button>
             </div>
             <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem; line-height:1.6;">This candidate's resume was processed using a BERT Deep Learning model. Below is the strict requirement breakdown.</p>
 
-            <h4 style="color:#166534; margin-bottom:0.5rem; font-size: 0.9rem; text-transform: uppercase;">✅ Matched Requirements</h4>
+            <h4 style="color:#166534; margin-bottom:0.5rem; font-size: 0.9rem; text-transform: uppercase;">Matched Requirements</h4>
             <div id="matchedSkillsContainer" style="margin-bottom:1.5rem; display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
 
-            <h4 style="color:#991b1b; margin-bottom:0.5rem; font-size: 0.9rem; text-transform: uppercase;">❌ Missing Skills (Penalty Applied)</h4>
+            <h4 style="color:#991b1b; margin-bottom:0.5rem; font-size: 0.9rem; text-transform: uppercase;">Missing Skills (Penalty Applied)</h4>
             <div id="missingSkillsContainer" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
 
             <button onclick="closeAiModal()" class="btn btn-secondary" style="width:100%; margin-top:2rem;">Close Details</button>
@@ -129,8 +129,8 @@
             </header>
 
             <div class="tabs-container">
-                <button class="tab-btn active" onclick="switchTab('tab-analytics', this)">📊 Analytics Overview</button>
-                <button class="tab-btn" onclick="switchTab('tab-candidates', this)">👥 Candidate Management</button>
+                <button class="tab-btn active" onclick="switchTab('tab-analytics', this)">Analytics Overview</button>
+                <button class="tab-btn" onclick="switchTab('tab-candidates', this)">Candidate Management</button>
             </div>
 
             <div id="tab-analytics" class="tab-pane active">
@@ -233,26 +233,26 @@
                                         
                                         {% if candidate.resume_filename %}
                                         <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.resume_filename) }}', 'Resume - {{ candidate.personal_info.first_name }}')" class="doc-badge doc-resume" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">
-                                            📄 Resume
+                                            Resume
                                         </a>
                                         {% endif %}
 
                                         {% if candidate.personal_info.cnic_front %}
-                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.cnic_front) }}', 'CNIC Front')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">💳 CNIC Front</a>
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.cnic_front) }}', 'CNIC Front')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">CNIC Front</a>
                                         {% endif %}
                                         
                                         {% if candidate.personal_info.cnic_back %}
-                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.cnic_back) }}', 'CNIC Back')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">💳 CNIC Back</a>
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.cnic_back) }}', 'CNIC Back')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">CNIC Back</a>
                                         {% endif %}
                                         
                                         {% if candidate.personal_info.domicile %}
-                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.domicile) }}', 'Domicile Document')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">🏠 Domicile</a>
+                                        <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=candidate.personal_info.domicile) }}', 'Domicile Document')" class="doc-badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;">Domicile</a>
                                         {% endif %}
 
                                         {% for edu in candidate.education %}
                                             {% if edu.document %}
                                             <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=edu.document) }}', 'Degree - {{ edu.degree_name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ edu.degree_name }}">
-                                                🎓 {{ edu.degree_name | truncate(12, true, '..') }}
+                                                {{ edu.degree_name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
                                         {% endfor %}
@@ -260,7 +260,7 @@
                                         {% for exp in candidate.experience %}
                                             {% if exp.document %}
                                             <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=exp.document) }}', 'Experience - {{ exp.company_name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ exp.company_name }}">
-                                                💼 {{ exp.company_name | truncate(12, true, '..') }}
+                                                {{ exp.company_name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
                                         {% endfor %}
@@ -268,7 +268,7 @@
                                         {% for cert in candidate.certifications %}
                                             {% if cert.document %}
                                             <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=cert.document) }}', 'Certificate - {{ cert.name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #faf5ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ cert.name }}">
-                                                📜 {{ cert.name | truncate(12, true, '..') }}
+                                                {{ cert.name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
                                         {% endfor %}
@@ -276,7 +276,7 @@
                                         {% for rec in candidate.recommendations %}
                                             {% if rec.document %}
                                             <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=rec.document) }}', 'Recommendation - {{ rec.name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ rec.name }}">
-                                                🤝 {{ rec.name | truncate(12, true, '..') }}
+                                                 {{ rec.name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
                                         {% endfor %}
@@ -294,7 +294,7 @@
                                         <button type="button" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; background: #f8fafc; color: #475569; cursor: pointer; font-weight: 600; transition: background 0.2s;"
                                                 onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f8fafc'"
                                                 onclick='openAiModal({{ candidate.matched_skills | default([]) | tojson | safe }}, {{ candidate.missing_skills | default([]) | tojson | safe }})'>
-                                            🔍 View AI Details
+                                             View AI Details
                                         </button>
                                     {% else %}
                                         <span class="badge badge-pending">Pending Scan</span>
@@ -321,7 +321,7 @@
                                         <button type="button" onclick="handleStatusUpdate('{{ candidate._id }}')" class="btn btn-primary btn-sm" style="width: 100%;">Update Status</button>
                                     </form>
                                     <form action="{{ url_for('admin.delete_candidate', candidate_id=candidate._id) }}" method="POST" onsubmit="return confirm('Permanently delete this candidate?');">
-                                        <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">🗑️ Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -608,7 +608,7 @@
                 "lengthMenu": [5, 10, 25, 50, 100],
                 "order": [[5, "desc"]], // Automatically sort by the 6th column (AI Score) from Highest to Lowest
                 "language": {
-                    "search": "🔍 Filter Candidates:",
+                    "search": "Filter Candidates:",
                     "emptyTable": "No candidates found for this job yet."
                 }
             });

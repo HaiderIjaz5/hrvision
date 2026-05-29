@@ -17,7 +17,7 @@ def admin_dashboard():
         session['next_url'] = request.url
         return redirect(url_for('auth.admin_login'))
 
-    if session.get('email') == 'admin@hrvision.com':
+    if session.get('email') == os.getenv("DEFAULT_ADMIN_EMAIL"):
         candidates = list(candidates_collection.find())
     else:
         my_jobs = list(jobs_collection.find({"admin_id": session['user_id']}))
@@ -65,7 +65,7 @@ def manage_jobs():
     if session.get('role') != 'admin':
         session['next_url'] = request.url
         return redirect(url_for('auth.admin_login'))
-    if session.get('email') == 'admin@hrvision.com':
+    if session.get('email') == os.getenv("DEFAULT_ADMIN_EMAIL"):
         my_jobs = list(jobs_collection.find().sort("created_at", -1))
     else:
         my_jobs = list(jobs_collection.find({"admin_id": session['user_id']}).sort("created_at", -1))
@@ -78,7 +78,7 @@ def export_csv():
         session['next_url'] = request.url
         return redirect(url_for('auth.admin_login'))
         
-    if session.get('email') == 'admin@hrvision.com':
+    if session.get('email') == os.getenv("DEFAULT_ADMIN_EMAIL"):
         candidates = list(candidates_collection.find())
     else:
         my_jobs = list(jobs_collection.find({"admin_id": session['user_id']}))
@@ -160,7 +160,7 @@ def export_csv():
 
 @admin_bp.route('/admin/create_hr', methods=['GET', 'POST'])
 def create_hr():
-    if session.get('role') != 'admin' or session.get('email') != 'admin@hrvision.com':
+    if session.get('role') != 'admin' or session.get('email') != os.getenv("DEFAULT_ADMIN_EMAIL"):
         return redirect(url_for('admin.admin_dashboard'))
         
     if request.method == 'POST':
@@ -204,7 +204,7 @@ def create_hr():
             hr_id = request.form.get('hr_id')
             hr_user = users_collection.find_one({"_id": ObjectId(hr_id)})
             
-            if hr_user and hr_user.get('email') == 'admin@hrvision.com':
+            if hr_user and hr_user.get('email') == os.getenv("DEFAULT_ADMIN_EMAIL"):
                 flash("🚨 Error: You cannot delete the Super Admin account.", "error")
             else:
                 users_collection.delete_one({"_id": ObjectId(hr_id)})
@@ -282,7 +282,7 @@ def edit_job(job_id):
         flash("Job not found.")
         return redirect(url_for('admin.manage_jobs'))
 
-    if session.get('email') != 'admin@hrvision.com' and job.get('admin_id') != session['user_id']:
+    if session.get('email') != os.getenv("DEFAULT_ADMIN_EMAIL") and job.get('admin_id') != session['user_id']:
         flash("Unauthorized: You can only edit your own job postings.")
         return redirect(url_for('admin.manage_jobs'))
 
@@ -336,7 +336,7 @@ def update_job_status(job_id):
         return redirect(url_for('auth.admin_login'))
     
     job = jobs_collection.find_one({"_id": ObjectId(job_id)})
-    if session.get('email') != 'admin@hrvision.com' and job.get('admin_id') != session['user_id']:
+    if session.get('email') != os.getenv("DEFAULT_ADMIN_EMAIL") and job.get('admin_id') != session['user_id']:
         flash("Unauthorized: Cannot update jobs you did not post.")
         return redirect(url_for('admin.manage_jobs'))
 
@@ -397,7 +397,7 @@ def delete_candidate(candidate_id):
         flash("Candidate not found.")
         return redirect(url_for('admin.admin_dashboard'))
 
-    if session.get('email') == 'admin@hrvision.com':
+    if session.get('email') == os.getenv("DEFAULT_ADMIN_EMAIL"):
         candidates_collection.delete_one({"_id": ObjectId(candidate_id)})
         flash("Candidate permanently deleted from database.")
     else:
@@ -419,7 +419,7 @@ def delete_job(job_id):
         flash("Job not found.", "error")
         return redirect(url_for('admin.manage_jobs'))
 
-    if session.get('email') != 'admin@hrvision.com' and job.get('admin_id') != session['user_id']:
+    if session.get('email') != os.getenv("DEFAULT_ADMIN_EMAIL") and job.get('admin_id') != session['user_id']:
         flash("Unauthorized: Cannot delete jobs you did not post.", "error")
         return redirect(url_for('admin.manage_jobs'))
 

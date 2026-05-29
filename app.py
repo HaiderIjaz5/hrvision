@@ -10,6 +10,9 @@ from config import SECRET_KEY, UPLOAD_FOLDER, MAX_CONTENT_LENGTH, users_collecti
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+if not app.secret_key:
+    raise ValueError("No FLASK_SECRET_KEY set for Flask application")
+    
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
