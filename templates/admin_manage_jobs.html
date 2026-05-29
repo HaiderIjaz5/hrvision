@@ -69,7 +69,7 @@
                                 <span class="text-small text-muted">Deadline: <strong>{{ job.deadline }}</strong></span><br>
                                 
                                 <span class="badge badge-neutral" style="margin-top: 8px;">
-                                    👤 Posted By: {{ job.admin_name | default('Super Admin') }}
+                                    Posted By: {{ job.admin_name | default('Super Admin') }}
                                 </span>
                             </td>
                             
@@ -102,10 +102,10 @@
                             </td>
                             
                             <td style="min-width: 120px;">
-                                <a href="{{ url_for('admin.edit_job', job_id=job._id) }}" class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 0.5rem;">✏️ Edit</a>
+                                <a href="{{ url_for('admin.edit_job', job_id=job._id) }}" class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 0.5rem;">Edit</a>
                                 
                                 <form action="{{ url_for('admin.delete_job', job_id=job._id) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this job? This will NOT delete candidates who applied to it.');">
-                                    <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">🗑️ Delete</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">Delete</button>
                                 </form>
                             </td>
                         </tr>

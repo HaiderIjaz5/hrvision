@@ -1,5 +1,6 @@
 import os
 import smtplib
+import uuid
 from email.mime.text import MIMEText
 from werkzeug.utils import secure_filename
 import PyPDF2

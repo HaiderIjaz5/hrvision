@@ -110,7 +110,7 @@ def candidate_settings():
 def my_profile():
     if 'user_id' not in session or session.get('role') != 'candidate':
         session['next_url'] = request.url
-        # FIX: Added 'auth.' prefix to avoid a BuildError
+        
         return redirect(url_for('auth.login')) 
         
     existing_profile = profiles_collection.find_one({"user_id": session['user_id']})
@@ -295,7 +295,6 @@ def submit_profile():
                         exp_years_calc = max(0.0, round(diff_days / 365.25, 1))
                     except Exception as e:
                         print("Date parse error", e)
-                        # FIX: Alert the user that their dates couldn't be parsed properly
                         flash(f"Warning: Could not calculate experience duration for '{designations[i]}'. Please ensure dates are in YYYY-MM format.", "error")
                 
                 total_years_exp += exp_years_calc
