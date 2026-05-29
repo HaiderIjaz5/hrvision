@@ -251,7 +251,7 @@
 
                                         {% for edu in candidate.education %}
                                             {% if edu.document %}
-                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=edu.document) }}', 'Degree - {{ edu.degree_name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ edu.degree_name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=edu.document) }}', 'Degree - {{ edu.degree_name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ edu.degree_name }}">
                                                 🎓 {{ edu.degree_name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
@@ -259,7 +259,7 @@
 
                                         {% for exp in candidate.experience %}
                                             {% if exp.document %}
-                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=exp.document) }}', 'Experience - {{ exp.company_name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ exp.company_name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=exp.document) }}', 'Experience - {{ exp.company_name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ exp.company_name }}">
                                                 💼 {{ exp.company_name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
@@ -267,7 +267,7 @@
 
                                         {% for cert in candidate.certifications %}
                                             {% if cert.document %}
-                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=cert.document) }}', 'Certificate - {{ cert.name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #faf5ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ cert.name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=cert.document) }}', 'Certificate - {{ cert.name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #faf5ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ cert.name }}">
                                                 📜 {{ cert.name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}
@@ -275,7 +275,7 @@
 
                                         {% for rec in candidate.recommendations %}
                                             {% if rec.document %}
-                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=rec.document) }}', 'Recommendation - {{ rec.name | replace("'", "\\'") }}')" class="doc-badge" style="background-color: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ rec.name }}">
+                                            <a href="javascript:void(0);" onclick="openDocumentModal('{{ url_for('uploaded_file', filename=rec.document) }}', 'Recommendation - {{ rec.name | replace("'", "\\'") | replace('\"', '&quot;') }}')" class="doc-badge" style="background-color: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: 600;" title="{{ rec.name }}">
                                                 🤝 {{ rec.name | truncate(12, true, '..') }}
                                             </a>
                                             {% endif %}

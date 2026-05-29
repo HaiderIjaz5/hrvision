@@ -34,7 +34,8 @@ def uploaded_file(filename):
 @app.errorhandler(RequestEntityTooLarge)
 def handle_file_size_error(e):
     flash("Upload failed: File size exceeds the 10MB limit. Please compress your document.", "error")
-    return redirect(request.referrer or url_for('public.my_custom_home'))
+    # FIX: Point to the actual public homepage route
+    return redirect(request.referrer or url_for('public.root'))
 
 # ==========================================
 # --- REGISTER BLUEPRINTS ---

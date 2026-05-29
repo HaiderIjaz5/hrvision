@@ -101,7 +101,12 @@ def allowed_file(filename):
 
 def save_dynamic_file(file_obj):
     if file_obj and file_obj.filename and allowed_file(file_obj.filename):
-        filename = secure_filename(file_obj.filename)
+        original_filename = secure_filename(file_obj.filename)
+        
+        # FIX: Append a unique 8-character ID to the filename to prevent overwrites
+        unique_id = uuid.uuid4().hex[:8]
+        filename = f"{unique_id}_{original_filename}"
+        
         path = os.path.join(UPLOAD_FOLDER, filename)
         file_obj.save(path)
         return filename 
