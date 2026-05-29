@@ -3,6 +3,7 @@ from flask import Flask, send_from_directory, flash, redirect, request, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import datetime
+from dotenv import load_dotenv
 
 # Import variables from our config file
 from config import SECRET_KEY, UPLOAD_FOLDER, MAX_CONTENT_LENGTH, users_collection
@@ -15,11 +16,11 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Initialize Super Admin if not exists
-if not users_collection.find_one({"email": "admin@hrvision.com"}):
+if not users_collection.find_one({"email": os.getenv("DEFAULT_ADMIN_EMAIL")}):
     users_collection.insert_one({
         "name": "Super Admin",
-        "email": "admin@hrvision.com",
-        "password": generate_password_hash("admin123"),
+        "email": os.getenv("DEFAULT_ADMIN_EMAIL"),
+        "password": generate_password_hash(os.getenv("DEFAULT_ADMIN_PASSWORD")),
         "role": "admin",
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     })

@@ -35,13 +35,13 @@
             </button>
         </div>
 
-        <a href="{{ url_for('public.my_custom_home') }}" class="header-logo-group">
+        <a href="{{ url_for('public.root') }}" class="header-logo-group">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HRVision Logo" style="height: 32px; width: auto;">
             <span class="header-logo">HRVision</span>
         </a>
         
         <ul class="header-nav-links" id="mobileNav">
-            <li><a href="{{ url_for('public.my_custom_home') }}" class="{% if request.endpoint == 'public.my_custom_home' %}active-nav-link{% endif %}">Home</a></li>
+            <li><a href="{{ url_for('public.root') }}" class="{% if request.endpoint == 'public.root' %}active-nav-link{% endif %}">Home</a></li>
             <li><a href="{{ url_for('candidate.job_board') }}" class="{% if request.endpoint == 'candidate.job_board' %}active-nav-link{% endif %}">Browse Jobs</a></li>
             <li><a href="{{ url_for('public.about') }}" class="{% if request.endpoint == 'public.about' %}active-nav-link{% endif %}">About Us</a></li>
             <li><a href="{{ url_for('public.contact') }}" class="{% if request.endpoint == 'public.contact' %}active-nav-link{% endif %}">Contact Us</a></li>

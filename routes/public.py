@@ -3,13 +3,9 @@ from utils import send_contact_email
 
 public_bp = Blueprint('public', __name__)
 
-@public_bp.route('/home') 
-def my_custom_home():   
-    return render_template('index.html')
-
 @public_bp.route('/')
 def root():
-    return redirect(url_for('public.my_custom_home'))
+   return render_template('index.html')
 
 @public_bp.route('/about')
 def about():

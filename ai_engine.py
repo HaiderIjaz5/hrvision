@@ -67,9 +67,12 @@ def calculate_resume_score(resume_path, job_description, mandatory_skills=[], ca
     missing_skills = []
     
     if mandatory_skills:
-        for skill in mandatory_skills:
-            cleaned_skill = clean_text(skill)
-            if cleaned_skill and cleaned_skill in candidate_search_text:
+    for skill in mandatory_skills:
+        cleaned_skill = clean_text(skill)
+        
+        # NEW: Only grade this skill if it is not totally blank
+        if cleaned_skill: 
+            if cleaned_skill in candidate_search_text:
                 matched_skills.append(skill)
             else:
                 missing_skills.append(skill)

@@ -8,7 +8,7 @@ load_dotenv()
 # Basic Configuration
 SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'default_fallback_key')
 UPLOAD_FOLDER = 'uploads'
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024 # 10 MB limit for file uploads
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024 # 16 MB limit for file uploads
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'}
 
 # Email Configuration
