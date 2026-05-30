@@ -9,9 +9,9 @@ _ai_model = None
 def get_model():
     global _ai_model
     if _ai_model is None:
-        print("🧠 Loading Deep Learning AI Model (this might take a few seconds)...")
+        print("Loading Deep Learning AI Model (this might take a few seconds)...")
         _ai_model = SentenceTransformer('all-MiniLM-L6-v2')
-        print("✅ AI Model successfully loaded and ready!")
+        print("AI Model successfully loaded and ready!")
     return _ai_model
 
 def clean_text(text):
@@ -67,16 +67,16 @@ def calculate_resume_score(resume_path, job_description, mandatory_skills=[], ca
     missing_skills = []
     
     if mandatory_skills:
-    for skill in mandatory_skills:
-        cleaned_skill = clean_text(skill)
-        
-        # NEW: Only grade this skill if it is not totally blank
-        if cleaned_skill: 
-            if cleaned_skill in candidate_search_text:
-                matched_skills.append(skill)
-            else:
-                missing_skills.append(skill)
-                penalty += 15 
+        for skill in mandatory_skills:
+            cleaned_skill = clean_text(skill)
+            
+            # NEW: Only grade this skill if it is not totally blank
+            if cleaned_skill: 
+                if cleaned_skill in candidate_search_text:
+                    matched_skills.append(skill)
+                else:
+                    missing_skills.append(skill)
+                    penalty += 15 
                 
     final_score = max(0, round(base_ai_score - penalty))
     return final_score, matched_skills, missing_skills

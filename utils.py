@@ -25,9 +25,9 @@ def send_application_receipt_email(candidate_email, candidate_name, job_title):
         server.login(MAIL_USERNAME, MAIL_PASSWORD)
         server.sendmail(MAIL_USERNAME, candidate_email, msg.as_string())
         server.quit()
-        print(f"✅ Automated Application Receipt Email Sent to {candidate_email}")
+        print(f"Automated Application Receipt Email Sent to {candidate_email}")
     except Exception as e:
-        print(f"❌ Failed to send application receipt email: {e}")
+        print(f"Failed to send application receipt email: {e}")
 
 def send_reset_email(user_email, token):
     reset_url = url_for('auth.reset_token', token=token, _external=True)
@@ -41,7 +41,7 @@ def send_reset_email(user_email, token):
         server.sendmail(MAIL_USERNAME, user_email, msg.as_string())
         server.quit()
     except Exception as e:
-        print(f"❌ Failed to send reset email: {e}")
+        print(f" Failed to send reset email: {e}")
 
 def send_contact_email(user_name, user_email, user_message):
     receiver_email = MAIL_USERNAME 
@@ -91,7 +91,7 @@ def send_status_email(candidate_email, candidate_name, job_title, new_status, hr
         server.quit()
         return True
     except Exception as e:
-        print(f"❌ Failed to send status email: {e}")
+        print(f" Failed to send status email: {e}")
         return False
 
 # ==========================================

@@ -99,7 +99,7 @@ def candidate_settings():
                 {"_id": ObjectId(session['user_id'])},
                 {"$set": {"password": hashed_password}}
             )
-            flash("Password updated successfully! ✅")
+            flash("Password updated successfully! ")
         else:
             flash("Incorrect current password.", "error")
         return redirect(url_for('candidate.candidate_settings'))

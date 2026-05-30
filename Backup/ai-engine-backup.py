@@ -124,9 +124,9 @@ from sentence_transformers import SentenceTransformer, util
 
 # Load the pre-trained NLP model into memory.
 # Note: The very first time you run your server, it will download a ~90MB model file from HuggingFace.
-print("🧠 Loading Deep Learning AI Model (this might take a few seconds)...")
+print("🧠Loading Deep Learning AI Model (this might take a few seconds)...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
-print("✅ AI Model successfully loaded and ready!")
+print(" AI Model successfully loaded and ready!")
 
 def extract_text_from_file(filepath):
     """Extracts raw text from PDF or DOCX files."""

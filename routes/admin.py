@@ -172,7 +172,7 @@ def create_hr():
             password = request.form.get('password')
             
             if users_collection.find_one({"email": email}):
-                flash("🚨 Error: That email is already in use by another account.", "error")
+                flash("Error: That email is already in use by another account.", "error")
             else:
                 users_collection.insert_one({
                     "name": name, 
@@ -181,7 +181,7 @@ def create_hr():
                     "role": "admin", 
                     "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
-                flash(f"✅ HR Manager '{name}' created successfully!")
+                flash(f"HR Manager '{name}' created successfully!")
                 
         elif action == 'edit':
             hr_id = request.form.get('hr_id')
@@ -195,20 +195,20 @@ def create_hr():
                 update_data["password"] = generate_password_hash(password)
                 
             if users_collection.find_one({"email": email, "_id": {"$ne": ObjectId(hr_id)}}):
-                flash("🚨 Error: That email is already in use by another account.", "error")
+                flash("Error: That email is already in use by another account.", "error")
             else:
                 users_collection.update_one({"_id": ObjectId(hr_id)}, {"$set": update_data})
-                flash(f"✅ HR Manager '{name}' updated successfully!")
+                flash(f"HR Manager '{name}' updated successfully!")
                 
         elif action == 'delete':
             hr_id = request.form.get('hr_id')
             hr_user = users_collection.find_one({"_id": ObjectId(hr_id)})
             
             if hr_user and hr_user.get('email') == os.getenv("DEFAULT_ADMIN_EMAIL"):
-                flash("🚨 Error: You cannot delete the Super Admin account.", "error")
+                flash("Error: You cannot delete the Super Admin account.", "error")
             else:
                 users_collection.delete_one({"_id": ObjectId(hr_id)})
-                flash("✅ HR Manager deleted successfully!")
+                flash("HR Manager deleted successfully!")
                 
         return redirect(url_for('admin.create_hr'))
 

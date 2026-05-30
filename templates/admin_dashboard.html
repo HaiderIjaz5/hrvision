@@ -113,15 +113,17 @@
         </aside>
 
         <main class="main-content">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-weight: 600; border: 1px solid #bbf7d0;">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'error' or 'error' in message.lower() %}
+                                <div class="flash-error" style="margin-bottom: 0;">{{ message }}</div>
+                            {% else %}
+                                <div class="flash-success" style="margin-bottom: 0;">{{ message }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
             <header class="header">
                 <h1>Admin Control Center</h1>
