@@ -1,6 +1,6 @@
 # 🚀 HRVision: AI-Powered Recruitment Ecosystem
 
-**HRVision** is a next-generation Applicant Tracking System (ATS) developed as a Final Year Project. By leveraging Deep Learning and Natural Language Processing (NLP), HRVision eliminates the "black box" of AI hiring. It provides transparent, explainable semantic scoring to identify the best talent while offering candidates a frictionless, "apply-once" experience. :contentReference[oaicite:0]{index=0}
+**HRVision** is a next-generation Applicant Tracking System (ATS) developed as a Final Year Project. By leveraging Deep Learning and Natural Language Processing (NLP), HRVision eliminates the "black box" of AI hiring. It provides transparent, explainable semantic scoring to identify the best talent while offering candidates a frictionless, "apply-once" experience. 
 
 ---
 
@@ -77,6 +77,8 @@ FLASK_SECRET_KEY=your_secure_random_key
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/hrvision_db
 MAIL_USERNAME=your_email@gmail.com
 MAIL_PASSWORD=your_16_digit_app_password
+DEFAULT_ADMIN_EMAIL=Admin Mail
+DEFAULT_ADMIN_PASSWORD=Admin Pass
 RENDER=false
 ```
 
