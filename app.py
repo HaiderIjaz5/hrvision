@@ -31,6 +31,10 @@ if not users_collection.find_one({"email": os.getenv("DEFAULT_ADMIN_EMAIL")}):
 # ==========================================
 # --- GLOBAL FILE SERVING & ERROR HANDLING ---
 # ==========================================
+@app.route('/ping')
+def ping():
+    return {"status": "pong"}
+
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
